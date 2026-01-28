@@ -1,5 +1,6 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
 interface NavLinkProps {
   href: string;
@@ -7,12 +8,12 @@ interface NavLinkProps {
 }
 
 export const NavLink: React.FC<NavLinkProps> = ({ href, children }) => (
-  <a
-    href={href}
+  <Link
+    to={href}
     className="text-slate-600 hover:text-indigo-600 transition font-medium"
   >
     {children}
-  </a>
+  </Link>
 );
 
 export function LandingHeader() {

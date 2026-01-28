@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { LandingHeader } from "@/components/LandingHeader";
 import { LandingFooter } from "@/components/LandingFooter";
+import { Link } from "react-router";
 
 // --- Interfaces ---
 interface FeatureProps {
@@ -101,15 +102,15 @@ const LandingPage: React.FC = () => {
             truly matters.
           </p>
 
-          <a
-            href="/dashboard"
+          <Link
+            to="/dashboard"
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <GlassButton primary>
               Enter the Hall <ArrowRight size={20} />
             </GlassButton>
             <GlassButton>Explore Features</GlassButton>
-          </a>
+          </Link>
         </div>
       </section>
 

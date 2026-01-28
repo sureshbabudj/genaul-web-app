@@ -50,6 +50,7 @@ export interface GenaulData {
   stats: Stats;
   reminders: Reminder[];
   streak: Streak;
+  activeHallId: string | null;
 }
 
 export type ProviderName = "indexeddb" | "google-drive" | "cloudkit";

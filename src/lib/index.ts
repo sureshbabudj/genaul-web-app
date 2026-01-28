@@ -1,3 +1,3 @@
 export * from "./providers";
-export * from "./vaultManager";
+export * from "./vaultUtils";
 export * from "./fsrsEngine";
