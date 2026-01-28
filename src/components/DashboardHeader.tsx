@@ -13,7 +13,7 @@ export function DashboardHeader({
   const [activeHallId] = useState<string | null>(getLastActiveHallId());
   return (
     <header className="max-w-6xl mx-auto flex justify-between items-center mb-8 py-2">
-      <div className="flex items-center gap-2">
+      <a href="/" className="flex items-center gap-2">
         <div className="border-indigo-600 p-1.5 rounded-lg shadow-inner">
           <img src="./icon.svg" className="text-white w-6 h-6 color-white" />
         </div>
@@ -21,7 +21,7 @@ export function DashboardHeader({
         <span className="text-2xl font-black text-slate-900 tracking-tighter">
           GENAUL.
         </span>
-      </div>
+      </a>
 
       <div className="flex items-center gap-4">
         <button
