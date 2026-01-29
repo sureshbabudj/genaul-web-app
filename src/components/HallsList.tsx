@@ -3,6 +3,7 @@ import { ArrowRight, Plus, Warehouse } from "lucide-react";
 import { useState } from "react";
 import ActionMenu from "./ActionMenu";
 import ConfirmationModal from "./ConfirmationModal";
+import InlineEdit from "@/components/InlineEdit";
 
 export function HallsList() {
   const {
@@ -12,6 +13,7 @@ export function HallsList() {
     getDueEchoes,
     getLastActiveHallId,
     setLastActiveHallId,
+    updateHall, // Ensure updateHall is destructured
   } = useGenaulStore();
 
   const [activeHallId, setActiveHallId] = useState<string | null>(() => {
@@ -32,6 +34,12 @@ export function HallsList() {
     if (hallToDelete) {
       await deleteHall(hallToDelete);
       setHallToDelete(null);
+    }
+  };
+
+  const handleEditHall = async (hallId: string, newName: string) => {
+    if (newName) {
+      await updateHall(hallId, newName);
     }
   };
 
@@ -62,13 +70,15 @@ export function HallsList() {
               const dueCount = getDueEchoes(hall.id).length;
               return (
                 <div key={hall.id} className="relative">
-                  <button
+                  <div
                     onClick={() => handleSetActiveHall(hall.id)}
-                    className={`relative w-full text-left p-5 rounded-2xl transition-all ${
+                    className={`relative w-full text-left p-5 rounded-2xl transition-all cursor-pointer ${
                       activeHallId === hall.id
                         ? "bg-white border-indigo-600 shadow-xl shadow-indigo-100/50 border-l-4"
                         : "bg-white/50 border-transparent hover:bg-white border"
                     }`}
+                    role="button"
+                    tabIndex={0}
                   >
                     {dueCount > 0 && (
                       <span className="absolute top-0 right-0 min-w-12 max-w-14 truncate text-center bg-amber-100 text-amber-700 text-[10px] font-black px-1 py-0.5 rounded-tr-md uppercase">
@@ -77,11 +87,14 @@ export function HallsList() {
                     )}
                     <div className="flex justify-between items-stretch">
                       <div className="flex flex-col items-start gap-1">
-                        <span
-                          className={`font-bold ${activeHallId === hall.id ? "text-indigo-600" : "text-slate-700"}`}
-                        >
-                          {hall.name}
-                        </span>{" "}
+                        <InlineEdit
+                          value={hall.name}
+                          onChange={(newValue) => handleEditHall(hall.id, newValue as string)}
+                          onSave={() => {}}
+                          className={`font-bold ${
+                            activeHallId === hall.id ? "text-indigo-600" : "text-slate-700"
+                          }`}
+                        />
                         <p className="text-xs text-slate-400 mt-1">
                           {hall.echoIds.length} Echoes
                         </p>
@@ -100,7 +113,7 @@ export function HallsList() {
                         ]}
                       />
                     </div>
-                  </button>
+                  </div>
                 </div>
               );
             })}

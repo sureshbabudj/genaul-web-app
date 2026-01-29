@@ -38,7 +38,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <MenuItems className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white border-none ring-1 ring-slate-100 ring-opacity-5 focus:outline-none">
+          <MenuItems className="absolute z-50 right-0 mt-2 w-56 rounded-md shadow-lg bg-white border-none ring-1 ring-slate-100 ring-opacity-5 focus:outline-none">
             <div className="py-1">
               {actions.map((action, index) => (
                 <MenuItem key={index}>
@@ -66,12 +66,14 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
       </Menu>
 
       {/* Bottom sheet trigger for small screens */}
-      <button
+      <div
         onClick={() => setShowBottomSheet(true)}
-        className="lg:hidden inline-flex justify-center w-full rounded-md border border-slate-100 shadow-xs p-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+        className="lg:hidden inline-flex justify-center w-full rounded-md border border-slate-100 shadow-xs p-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none cursor-pointer"
+        role="button"
+        tabIndex={0}
       >
         <MoreVertical size={16} />
-      </button>
+      </div>
 
       {/* Bottom Sheet for Mobile */}
       {showBottomSheet && (

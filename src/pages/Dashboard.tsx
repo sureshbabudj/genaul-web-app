@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { EchoesList } from "@/components/EchoesList";
 import { HallsList } from "@/components/HallsList";
+import InlineEdit from "@/components/InlineEdit";
 
 const Dashboard: React.FC = () => {
   const {
@@ -13,15 +14,12 @@ const Dashboard: React.FC = () => {
     getDueEchoes,
     getLastActiveHallId,
     setLastActiveHallId,
+    updateHall, // Ensure updateHall is destructured
   } = useGenaulStore();
 
   // UI State
   const activeHallId = getLastActiveHallId();
   const [showAddEcho, setShowAddEcho] = useState(false);
-
-  // Echo Form State
-  const [front, setFront] = useState("");
-  const [back, setBack] = useState("");
 
   // Persist activeHallId to store/localStorage whenever it changes
   useEffect(() => {
@@ -39,6 +37,15 @@ const Dashboard: React.FC = () => {
     navigate(`/recall?hallId=${activeHallId}`);
   };
 
+  const handleEditHall = async (newName: string) => {
+    if (activeHallId && newName) {
+      await updateHall(activeHallId, newName);
+    }
+  };
+
+  const [front, setFront] = useState("");
+  const [back, setBack] = useState("");
+
   return (
     <div className="min-h-screen bg-[#FAFAFF] p-4 font-sans">
       <DashboardHeader startRecall={startRecall} totalDue={totalDue} />
@@ -52,14 +59,12 @@ const Dashboard: React.FC = () => {
           {activeHall ? (
             <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm">
               <div className="flex justify-between items-center mb-10">
-                <div>
-                  <h2 className="text-xl md:text-3xl font-black tracking-tighter text-slate-900">
-                    {activeHall.name}
-                  </h2>
-                  <p className="text-slate-400 text-xs md:text-sm">
-                    Manage and recall your knowledge bits.
-                  </p>
-                </div>
+                <InlineEdit
+                  value={activeHall.name}
+                  onChange={(newValue) => handleEditHall(newValue as string)}
+                  onSave={() => {}}
+                  className="text-xl md:text-3xl font-black tracking-tighter text-slate-900"
+                />
                 <button
                   onClick={() => setShowAddEcho(true)}
                   className="flex text-sm md:text-md items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-600 transition"
@@ -85,7 +90,7 @@ const Dashboard: React.FC = () => {
 
       {/* --- Modals --- */}
 
-      {/* Add Echo Modal */}
+      {/* Add Echo Echo */}
       {showAddEcho && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-4xl p-8 w-full max-w-lg shadow-2xl">
@@ -95,7 +100,7 @@ const Dashboard: React.FC = () => {
                 <X />
               </button>
             </div>
-            <div className="space-y-4 mb-8">
+            <div className=" space-y-4 mb-8">
               <div>
                 <label className="text-xs font-bold uppercase text-slate-400 mb-2 block">
                   Front (Prompt)
