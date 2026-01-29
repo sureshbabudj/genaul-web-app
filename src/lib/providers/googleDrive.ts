@@ -102,4 +102,128 @@ export class GoogleDriveProvider implements VaultProvider {
       this.isFetching = false;
     }
   }
+
+  async updateEcho(id: string, front: string, back: string): Promise<void> {
+    if (!this.accessToken) throw new Error("Google SSO not authenticated");
+
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id)`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+
+    if (!searchResponse.ok) throw new Error("Failed to search Google Drive");
+    const { files } = await searchResponse.json();
+    const fileId = files[0]?.id;
+
+    if (!fileId) throw new Error("Vault file not found");
+
+    const boundary = "genaul_sync_boundary";
+    const payload = JSON.stringify({ id, front, back });
+    const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
+
+    const response = await fetch(
+      `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          "Content-Type": `multipart/related; boundary=${boundary}`,
+        },
+        body,
+      },
+    );
+
+    if (!response.ok) throw new Error("Failed to update Echo in Google Drive");
+  }
+
+  async deleteEcho(_id: string): Promise<void> {
+    if (!this.accessToken) throw new Error("Google SSO not authenticated");
+
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id)`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+
+    if (!searchResponse.ok) throw new Error("Failed to search Google Drive");
+    const { files } = await searchResponse.json();
+    const fileId = files[0]?.id;
+
+    if (!fileId) throw new Error("Vault file not found");
+
+    const response = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      },
+    );
+
+    if (!response.ok) throw new Error("Failed to delete Echo in Google Drive");
+  }
+
+  async updateHall(id: string, name: string): Promise<void> {
+    if (!this.accessToken) throw new Error("Google SSO not authenticated");
+
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id)`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+
+    if (!searchResponse.ok) throw new Error("Failed to search Google Drive");
+    const { files } = await searchResponse.json();
+    const fileId = files[0]?.id;
+
+    if (!fileId) throw new Error("Vault file not found");
+
+    const boundary = "genaul_sync_boundary";
+    const payload = JSON.stringify({ id, name });
+    const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
+
+    const response = await fetch(
+      `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          "Content-Type": `multipart/related; boundary=${boundary}`,
+        },
+        body,
+      },
+    );
+
+    if (!response.ok) throw new Error("Failed to update Hall in Google Drive");
+  }
+
+  async deleteHall(id: string): Promise<void> {
+    if (!this.accessToken) throw new Error("Google SSO not authenticated");
+
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id)`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+
+    if (!searchResponse.ok) throw new Error("Failed to search Google Drive");
+    const { files } = await searchResponse.json();
+    const fileId = files[0]?.id;
+
+    if (!fileId) throw new Error("Vault file not found");
+
+    // Fetch the current data
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch Vault data");
+    const data = await res.json();
+
+    // Filter out the Hall and associated Echoes
+    const updatedHalls = data.halls.filter((h: { id: string }) => h.id !== id);
+    const updatedEchoes = data.echoes.filter(
+      (e: { hallId: string }) => e.hallId !== id,
+    );
+
+    // Save the updated data
+    await this.save({ ...data, halls: updatedHalls, echoes: updatedEchoes });
+  }
 }
