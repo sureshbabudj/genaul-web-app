@@ -1,11 +1,14 @@
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import { ArrowRight, Plus, Warehouse } from "lucide-react";
 import { useState } from "react";
+import ActionMenu from "./ActionMenu";
+import ConfirmationModal from "./ConfirmationModal";
 
 export function HallsList() {
   const {
     halls,
     createHall,
+    deleteHall,
     getDueEchoes,
     getLastActiveHallId,
     setLastActiveHallId,
@@ -16,10 +19,20 @@ export function HallsList() {
   });
   const [showCreateHall, setShowCreateHall] = useState(false);
   const [newHallName, setNewHallName] = useState("");
+  const [hallToDelete, setHallToDelete] = useState<string | null>(null);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [selectedHall, setSelectedHall] = useState<string | null>(null);
 
   const handleSetActiveHall = async (hallId: string) => {
     setActiveHallId(hallId);
     await setLastActiveHallId(hallId);
+  };
+
+  const handleDeleteHall = async () => {
+    if (hallToDelete) {
+      await deleteHall(hallToDelete);
+      setHallToDelete(null);
+    }
   };
 
   return (
@@ -48,31 +61,47 @@ export function HallsList() {
             {halls.map((hall) => {
               const dueCount = getDueEchoes(hall.id).length;
               return (
-                <button
-                  key={hall.id}
-                  onClick={() => handleSetActiveHall(hall.id)}
-                  className={`w-full text-left p-5 rounded-2xl transition-all ${
-                    activeHallId === hall.id
-                      ? "bg-white border-indigo-600 shadow-xl shadow-indigo-100/50 border-l-4"
-                      : "bg-white/50 border-transparent hover:bg-white border"
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <span
-                      className={`font-bold ${activeHallId === hall.id ? "text-indigo-600" : "text-slate-700"}`}
-                    >
-                      {hall.name}
-                    </span>
+                <div key={hall.id} className="relative">
+                  <button
+                    onClick={() => handleSetActiveHall(hall.id)}
+                    className={`relative w-full text-left p-5 rounded-2xl transition-all ${
+                      activeHallId === hall.id
+                        ? "bg-white border-indigo-600 shadow-xl shadow-indigo-100/50 border-l-4"
+                        : "bg-white/50 border-transparent hover:bg-white border"
+                    }`}
+                  >
                     {dueCount > 0 && (
-                      <span className="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-1 rounded-md uppercase">
+                      <span className="absolute top-0 right-0 min-w-12 max-w-14 truncate text-center bg-amber-100 text-amber-700 text-[10px] font-black px-1 py-0.5 rounded-tr-md uppercase">
                         {dueCount} Due
                       </span>
                     )}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {hall.echoIds.length} Echoes
-                  </p>
-                </button>
+                    <div className="flex justify-between items-stretch">
+                      <div className="flex flex-col items-start gap-1">
+                        <span
+                          className={`font-bold ${activeHallId === hall.id ? "text-indigo-600" : "text-slate-700"}`}
+                        >
+                          {hall.name}
+                        </span>{" "}
+                        <p className="text-xs text-slate-400 mt-1">
+                          {hall.echoIds.length} Echoes
+                        </p>
+                      </div>
+
+                      <ActionMenu
+                        actions={[
+                          {
+                            label: "Delete",
+                            onClick: () => {
+                              setSelectedHall(hall.id);
+                              setHallToDelete(hall.id);
+                            },
+                            isDestructive: true,
+                          },
+                        ]}
+                      />
+                    </div>
+                  </button>
+                </div>
               );
             })}
             <button
@@ -118,6 +147,49 @@ export function HallsList() {
                 Create
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Hall Confirmation Modal */}
+      {hallToDelete && (
+        <ConfirmationModal
+          isOpen={!!hallToDelete}
+          title="Delete Hall"
+          message="Are you sure you want to delete this Hall? All associated Echoes will also be deleted."
+          onCancel={() => setHallToDelete(null)}
+          onConfirm={handleDeleteHall}
+        />
+      )}
+
+      {/* Bottom Sheet for Mobile */}
+      {showBottomSheet && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white relative rounded-t-xl p-6 shadow-2xl">
+            <div
+              className="absolute inset-0 top-0 flex flex-col justify-between items-center p-2 cursor-pointer w-15 h-6 mx-auto"
+              onClick={() => setShowBottomSheet(false)}
+            >
+              <div className="w-full h-full border-t border-slate-300" />
+              <div className="w-full h-full border-t border-slate-300" />
+            </div>
+            <h3 className="text-lg font-bold mb-4">Actions</h3>
+            <button
+              onClick={() => {
+                setHallToDelete(selectedHall);
+                setShowBottomSheet(false);
+              }}
+              className="w-full py-3 text-red-600 font-bold hover:bg-red-100 rounded-lg"
+            >
+              Delete
+            </button>
+            <div className="border-t border-slate-200 my-2" />
+            <button
+              onClick={() => setShowBottomSheet(false)}
+              className="w-full py-3 font-bold hover:bg-gray-100 rounded-lg"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}

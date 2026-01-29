@@ -2,6 +2,7 @@ import { useGenaulStore } from "@/hooks/useGenaulStore";
 import type { Hall } from "@/types";
 import ConfirmationModal from "./ConfirmationModal";
 import { useState } from "react";
+import ActionMenu from "./ActionMenu";
 
 export function EchoesList({ activeHall }: { activeHall: Hall }) {
   const { echoes, deleteEcho } = useGenaulStore();
@@ -49,12 +50,15 @@ export function EchoesList({ activeHall }: { activeHall: Hall }) {
                 <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Next: {new Date(echo.nextReview).toLocaleDateString()}
                 </span>
-                <button
-                  onClick={() => handleDelete(echo.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  Delete
-                </button>
+                <ActionMenu
+                  actions={[
+                    {
+                      label: "Delete",
+                      onClick: () => handleDelete(echo.id),
+                      isDestructive: true,
+                    },
+                  ]}
+                />
               </div>
             </div>
           ))
