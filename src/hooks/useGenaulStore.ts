@@ -1,8 +1,19 @@
 import { create } from "zustand";
-import type { Echo, Hall, Grade, GenaulData, Stats } from "@/types";
+import type {
+  Echo,
+  Hall,
+  Grade,
+  GenaulData,
+  Stats,
+  ProviderName,
+} from "@/types";
 import { calculateNextReview } from "@/lib/fsrsEngine";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 type GenaulState = GenaulData & {
+  vaultProvider: ProviderName | "";
+  setVaultProvider: (provider: ProviderName | "") => void;
+
   lastActiveHallId: string | null;
   isHydrated: boolean;
 
@@ -22,141 +33,164 @@ type GenaulState = GenaulData & {
   toggleReminder: (reminderId: string) => Promise<void>;
 };
 
-export const useGenaulStore = create<GenaulState>((set, get) => ({
-  halls: [],
-  echoes: [],
-  reminders: [],
-  streak: { current: 0, longest: 0, updatedAt: new Date().toISOString() },
-  stats: { lastUpdated: new Date().toISOString(), cardsReviewed: 0 },
-  activeHallId: null,
-  lastActiveHallId: null,
-  isHydrated: false,
+export const useGenaulStore = create<GenaulState>()(
+  persist(
+    (set, get) => ({
+      vaultProvider: "",
+      halls: [],
+      echoes: [],
+      reminders: [],
+      streak: { current: 0, longest: 0, updatedAt: new Date().toISOString() },
+      stats: { lastUpdated: new Date().toISOString(), cardsReviewed: 0 },
+      activeHallId: null,
+      lastActiveHallId: null,
+      isHydrated: false,
 
-  setAllData: (data) =>
-    set({ ...data, lastActiveHallId: data.activeHallId, isHydrated: true }),
+      setAllData: (data) =>
+        set({ ...data, lastActiveHallId: data.activeHallId, isHydrated: true }),
 
-  initialize: async () => {
-    // Note: The actual loading is handled by the useSyncBridge hook
-    // which calls store.setAllData. This method can remain for API compatibility.
-  },
-
-  getLastActiveHallId: () => get().lastActiveHallId,
-
-  getDueEchoes: (hallId) => {
-    const now = Date.now();
-    return get().echoes.filter(
-      (e) => e.hallId === hallId && e.nextReview <= now,
-    );
-  },
-
-  setLastActiveHallId: async (id) => {
-    set({ lastActiveHallId: id, activeHallId: id });
-  },
-
-  createHall: async (name) => {
-    const id = crypto.randomUUID();
-    const newHall: Hall = {
-      id,
-      name,
-      echoIds: [],
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    };
-    set((state) => ({ halls: [...state.halls, newHall] }));
-    return id;
-  },
-
-  addEcho: async (hallId, front, back) => {
-    const echoId = crypto.randomUUID();
-    const now = new Date().toISOString();
-    const newEcho: Echo = {
-      id: echoId,
-      hallId,
-      front,
-      back,
-      stability: 0,
-      difficulty: 5,
-      reps: 0,
-      lastReview: Date.now(),
-      nextReview: Date.now(),
-      updatedAt: now,
-    };
-    set((state) => ({
-      echoes: [...state.echoes, newEcho],
-      halls: state.halls.map((h) =>
-        h.id === hallId
-          ? { ...h, echoIds: [...h.echoIds, echoId], updatedAt: now }
-          : h,
-      ),
-    }));
-  },
-
-  recallEcho: async (echoId, grade) => {
-    const echo = get().echoes.find((e) => e.id === echoId);
-    if (!echo) return;
-    const updates = calculateNextReview(echo, grade);
-    const updatedEcho = {
-      ...echo,
-      ...updates,
-      reps: echo.reps + 1,
-      lastReview: Date.now(),
-      updatedAt: new Date().toISOString(),
-    };
-    set((state) => ({
-      echoes: state.echoes.map((e) => (e.id === echoId ? updatedEcho : e)),
-      stats: {
-        ...state.stats,
-        cardsReviewed: (state.stats.cardsReviewed || 0) + 1,
-        lastUpdated: new Date().toISOString(),
+      initialize: async () => {
+        // Note: The actual loading is handled by the useSyncBridge hook
+        // which calls store.setAllData. This method can remain for API compatibility.
       },
-    }));
-  },
 
-  checkAndIncrementStreak: async () => {
-    const { streak } = get();
-    const now = new Date();
-    const lastUpdate = new Date(streak.updatedAt);
-    const today = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-    ).getTime();
-    const lastDay = new Date(
-      lastUpdate.getFullYear(),
-      lastUpdate.getMonth(),
-      lastUpdate.getDate(),
-    ).getTime();
+      setVaultProvider: (provider) => set({ vaultProvider: provider }),
 
-    const oneDayInMs = 86400000;
-    const diff = today - lastDay;
-    const newStreak = { ...streak };
+      getLastActiveHallId: () => get().lastActiveHallId,
 
-    if (diff === oneDayInMs) {
-      newStreak.current += 1;
-      if (newStreak.current > newStreak.longest)
-        newStreak.longest = newStreak.current;
-    } else if (diff > oneDayInMs) {
-      newStreak.current = 1;
-    }
-    newStreak.updatedAt = now.toISOString();
-    set({ streak: newStreak });
-  },
-
-  updateStats: async (patch) =>
-    set((state) => ({
-      stats: {
-        ...state.stats,
-        ...patch,
-        lastUpdated: new Date().toISOString(),
+      getDueEchoes: (hallId) => {
+        const now = Date.now();
+        return get().echoes.filter(
+          (e) => e.hallId === hallId && e.nextReview <= now,
+        );
       },
-    })),
 
-  toggleReminder: async (reminderId) =>
-    set((state) => ({
-      reminders: state.reminders.map((r) =>
-        r.id === reminderId
-          ? { ...r, enabled: !r.enabled, updatedAt: new Date().toISOString() }
-          : r,
-      ),
-    })),
-}));
+      setLastActiveHallId: async (id) => {
+        set({ lastActiveHallId: id, activeHallId: id });
+      },
+
+      createHall: async (name) => {
+        const id = crypto.randomUUID();
+        const newHall: Hall = {
+          id,
+          name,
+          echoIds: [],
+          updatedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        };
+        set((state) => ({ halls: [...state.halls, newHall] }));
+        return id;
+      },
+
+      addEcho: async (hallId, front, back) => {
+        const echoId = crypto.randomUUID();
+        const now = new Date().toISOString();
+        const newEcho: Echo = {
+          id: echoId,
+          hallId,
+          front,
+          back,
+          stability: 0,
+          difficulty: 5,
+          reps: 0,
+          lastReview: Date.now(),
+          nextReview: Date.now(),
+          updatedAt: now,
+        };
+        set((state) => ({
+          echoes: [...state.echoes, newEcho],
+          halls: state.halls.map((h) =>
+            h.id === hallId
+              ? { ...h, echoIds: [...h.echoIds, echoId], updatedAt: now }
+              : h,
+          ),
+        }));
+      },
+
+      recallEcho: async (echoId, grade) => {
+        const echo = get().echoes.find((e) => e.id === echoId);
+        if (!echo) return;
+        const updates = calculateNextReview(echo, grade);
+        const updatedEcho = {
+          ...echo,
+          ...updates,
+          reps: echo.reps + 1,
+          lastReview: Date.now(),
+          updatedAt: new Date().toISOString(),
+        };
+        set((state) => ({
+          echoes: state.echoes.map((e) => (e.id === echoId ? updatedEcho : e)),
+          stats: {
+            ...state.stats,
+            cardsReviewed: (state.stats.cardsReviewed || 0) + 1,
+            lastUpdated: new Date().toISOString(),
+          },
+        }));
+      },
+
+      checkAndIncrementStreak: async () => {
+        const { streak } = get();
+        const now = new Date();
+        const lastUpdate = new Date(streak.updatedAt);
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+        ).getTime();
+        const lastDay = new Date(
+          lastUpdate.getFullYear(),
+          lastUpdate.getMonth(),
+          lastUpdate.getDate(),
+        ).getTime();
+
+        const oneDayInMs = 86400000;
+        const diff = today - lastDay;
+        const newStreak = { ...streak };
+
+        if (diff === oneDayInMs) {
+          newStreak.current += 1;
+          if (newStreak.current > newStreak.longest)
+            newStreak.longest = newStreak.current;
+        } else if (diff > oneDayInMs) {
+          newStreak.current = 1;
+        }
+        newStreak.updatedAt = now.toISOString();
+        set({ streak: newStreak });
+      },
+
+      updateStats: async (patch) => {
+        set((state) => ({
+          stats: {
+            ...state.stats,
+            ...patch,
+            lastUpdated: new Date().toISOString(),
+          },
+        }));
+      },
+
+      toggleReminder: async (reminderId) => {
+        set((state) => ({
+          reminders: state.reminders.map((r) =>
+            r.id === reminderId
+              ? {
+                  ...r,
+                  enabled: !r.enabled,
+                  updatedAt: new Date().toISOString(),
+                }
+              : r,
+          ),
+        }));
+      },
+    }),
+    {
+      name: "genaul-settings", // Name in localStorage
+      storage: createJSONStorage(() => localStorage),
+      // Only persist the provider choice and lastActiveHallId
+      // The actual vault data (halls/echoes) is managed by IndexedDB/Cloud
+      partialize: (state: GenaulState) => ({
+        vaultProvider: state.vaultProvider,
+        lastActiveHallId: state.lastActiveHallId,
+      }),
+    },
+  ),
+);

@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// hooks/useSyncBridge.ts
 import { useEffect, useRef } from "react";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import { useVault } from "@/hooks/useVault";
@@ -44,7 +43,10 @@ export function useSyncBridge(
     // DO NOT save if we haven't loaded the data yet (prevents wiping remote data)
     if (!store.isHydrated || isInitialLoad.current) return;
 
+    const currentProviderName = provider.name;
+
     const debounceTimer = setTimeout(() => {
+      if (provider.name !== currentProviderName) return;
       // Extract only the GenaulData fields, exclude methods/UI state
       const { halls, echoes, reminders, streak, stats, activeHallId } = store;
 

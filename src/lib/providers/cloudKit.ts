@@ -16,7 +16,7 @@ export class CloudKitProvider implements VaultProvider {
       const record = records[0];
       record.fields.payload = { value: payload };
       await privateDB.saveRecords([record]);
-    } catch (e) {
+    } catch (_e) {
       // Create new if doesn't exist
       await privateDB.saveRecords([
         {
