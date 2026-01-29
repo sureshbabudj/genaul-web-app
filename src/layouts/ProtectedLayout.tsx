@@ -169,7 +169,7 @@ export function ProtectedLayout() {
       <div className="app-container">
         {activeProvider && (
           <SyncBridge
-            key={`${activeProvider.name}-${session?.access_token}`}
+            key={activeProvider?.name} // Use the provider name for stability
             provider={activeProvider}
             enabled={hasPermission}
           >
