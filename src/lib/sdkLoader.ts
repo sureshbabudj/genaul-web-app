@@ -1,17 +1,9 @@
 export const initSdks = async () => {
   // 1. Initialize Google
   if (window.gapi) {
-    await new Promise((resolve) => {
-      window.gapi.load("client", async () => {
-        await window.gapi.client.init({
-          apiKey: import.meta.env.VITE_GOOGLE_API_KEY,
-          discoveryDocs: [
-            "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-          ],
-        });
-        resolve(true);
-      });
-    });
+    console.warn(
+      "Skipping gapi.client.init as it is unnecessary for fetch-based calls.",
+    );
   }
 
   // 2. Initialize CloudKit
