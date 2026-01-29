@@ -13,8 +13,12 @@ export function LandingFooter() {
       </div>
       <p className="text-slate-400 font-medium">Capture. Learn. Master.</p>
       <nav className="mt-6 flex items-center justify-center gap-8">
-        <NavLink href="/privacy-policy">Privacy Policy</NavLink>
-        <NavLink href="/terms-and-conditions">Terms & Conditions</NavLink>
+        <NavLink href="/privacy-policy">
+          <span className="text-xs">Privacy Policy</span>
+        </NavLink>
+        <NavLink href="/terms-and-conditions">
+          <span className="text-xs">Terms & Conditions</span>
+        </NavLink>
       </nav>
       <p className="text-slate-300 mt-6 text-sm">
         &copy; {new Date().getFullYear()} Genaul. All rights reserved.
