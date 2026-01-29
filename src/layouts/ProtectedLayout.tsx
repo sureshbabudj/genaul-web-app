@@ -54,7 +54,6 @@ export function ProtectedLayout() {
         return null;
     }
 
-    // Fix: Pass the token directly to the provider instance
     if (provider && token && "setToken" in provider) {
       (provider as any).setToken(token);
     }
@@ -73,7 +72,7 @@ export function ProtectedLayout() {
               setToken(res.access_token);
               resolve("success");
             } else {
-              reject(new Error("Auth failed"));
+              reject(new Error(res.error_description || "Auth failed"));
             }
           },
         });

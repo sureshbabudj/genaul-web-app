@@ -1,13 +1,12 @@
 import type { GenaulData, ProviderName } from "@/types";
-import type { VaultProvider } from "./types";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
+import type { VaultProvider } from "./types";
 
 export class GoogleDriveProvider implements VaultProvider {
   public readonly name: ProviderName = "google-drive";
   private fileName = "vault.json";
   private accessToken: string | null = null;
 
-  // Set from ProtectedLayout after successful login
   setToken(token: string) {
     this.accessToken = token;
   }
@@ -18,31 +17,31 @@ export class GoogleDriveProvider implements VaultProvider {
     // 1. Find if file exists
     const searchResponse = await fetch(
       `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder`,
-      {
-        headers: { Authorization: `Bearer ${this.accessToken}` },
-      },
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
     );
 
     if (searchResponse.status === 401) {
       // This is the signal that the token is dead
       useGenaulStore.getState().setVaultToken(null);
-      throw new Error("Session expired. Please log in again.");
+      throw new Error("Session expired");
     }
 
     if (!searchResponse.ok) throw new Error("Failed to search Google Drive");
     const { files } = await searchResponse.json();
     const fileId = files[0]?.id;
 
-    // 2. Prepare Multipart Body
-    const boundary = "genaul_sync_boundary";
-    const metadata = JSON.stringify({
+    // 2. Prepare Metadata (Only include parents for NEW files)
+    const metadata: { name: string; parents?: string[] } = {
       name: this.fileName,
-    });
-    const content = JSON.stringify(data);
+    };
+    if (!fileId) {
+      metadata.parents = ["appDataFolder"];
+    }
 
+    const boundary = "genaul_sync_boundary";
     const body = [
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`,
-      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n`,
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`,
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(data)}\r\n`,
       `--${boundary}--`,
     ].join("");
 
@@ -60,13 +59,11 @@ export class GoogleDriveProvider implements VaultProvider {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Cloud save failed");
+      const err = await response.json();
+      if (response.status === 401)
+        useGenaulStore.getState().setVaultToken(null);
+      throw new Error(err.error?.message || "Drive Save Failed");
     }
-
-    console.log(
-      `[GoogleDrive] Successfully ${fileId ? "updated" : "created"} vault file.`,
-    );
   }
 
   async load(): Promise<GenaulData | null> {
@@ -79,6 +76,11 @@ export class GoogleDriveProvider implements VaultProvider {
           headers: { Authorization: `Bearer ${this.accessToken}` },
         },
       );
+
+      if (searchResponse.status === 401) {
+        useGenaulStore.getState().setVaultToken(null);
+        return null;
+      }
 
       const { files } = await searchResponse.json();
       if (!files || files.length === 0) return null;
