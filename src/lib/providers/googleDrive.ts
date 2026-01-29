@@ -1,66 +1,101 @@
 import type { GenaulData, ProviderName } from "@/types";
 import type { VaultProvider } from "./types";
+import { useGenaulStore } from "@/hooks/useGenaulStore";
 
 export class GoogleDriveProvider implements VaultProvider {
   public readonly name: ProviderName = "google-drive";
   private fileName = "vault.json";
+  private accessToken: string | null = null;
+
+  // Set from ProtectedLayout after successful login
+  setToken(token: string) {
+    this.accessToken = token;
+  }
 
   async save(data: GenaulData): Promise<void> {
-    const token = window.gapi?.auth?.getToken()?.access_token;
-    if (!token) throw new Error("Google SSO not authenticated");
+    if (!this.accessToken) throw new Error("Google SSO not authenticated");
 
-    const search = await fetch(
+    // 1. Find if file exists
+    const searchResponse = await fetch(
       `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${this.accessToken}` },
       },
     );
-    const { files } = await search.json();
+
+    if (searchResponse.status === 401) {
+      // This is the signal that the token is dead
+      useGenaulStore.getState().setVaultToken(null);
+      throw new Error("Session expired. Please log in again.");
+    }
+
+    if (!searchResponse.ok) throw new Error("Failed to search Google Drive");
+    const { files } = await searchResponse.json();
     const fileId = files[0]?.id;
 
-    // Use Multipart Upload for metadata + content safety
+    // 2. Prepare Multipart Body
     const boundary = "genaul_sync_boundary";
     const metadata = JSON.stringify({
       name: this.fileName,
-      parents: ["appDataFolder"],
     });
     const content = JSON.stringify(data);
 
-    const body =
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n` +
-      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+    const body = [
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`,
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n`,
+      `--${boundary}--`,
+    ].join("");
 
     const url = fileId
       ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
       : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: fileId ? "PATCH" : "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${this.accessToken}`,
         "Content-Type": `multipart/related; boundary=${boundary}`,
       },
       body,
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || "Cloud save failed");
+    }
+
+    console.log(
+      `[GoogleDrive] Successfully ${fileId ? "updated" : "created"} vault file.`,
+    );
   }
 
   async load(): Promise<GenaulData | null> {
-    const token = window.gapi?.auth?.getToken()?.access_token;
-    const search = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id)`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-    const { files } = await search.json();
-    if (!files.length) return null;
+    if (!this.accessToken) return null;
 
-    const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${files[0].id}?alt=media`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-    return res.json();
+    try {
+      const searchResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id)`,
+        {
+          headers: { Authorization: `Bearer ${this.accessToken}` },
+        },
+      );
+
+      const { files } = await searchResponse.json();
+      if (!files || files.length === 0) return null;
+
+      const fileId = files[0].id;
+      const res = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        {
+          headers: { Authorization: `Bearer ${this.accessToken}` },
+        },
+      );
+
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      console.error("[GoogleDriveProvider] Load error:", err);
+      return null;
+    }
   }
 }

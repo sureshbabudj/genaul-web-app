@@ -3,18 +3,34 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 interface NavLinkProps {
+  isLink?: boolean;
   href: string;
   children: React.ReactNode;
 }
 
-export const NavLink: React.FC<NavLinkProps> = ({ href, children }) => (
-  <Link
-    to={href}
-    className="text-slate-600 hover:text-indigo-600 transition font-medium"
-  >
-    {children}
-  </Link>
-);
+export const NavLink: React.FC<NavLinkProps> = ({
+  href,
+  children,
+  isLink = true,
+}) => {
+  const className =
+    "text-slate-600 hover:text-indigo-600 transition font-medium";
+  if (!isLink) {
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link
+      to={href}
+      className="text-slate-600 hover:text-indigo-600 transition font-medium"
+    >
+      {children}
+    </Link>
+  );
+};
 
 export function LandingHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,8 +54,9 @@ export function LandingHeader() {
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
-              <NavLink href="/#features">Features</NavLink>
-              <NavLink href="/#algorithm">FSRS Alpha</NavLink>
+              <NavLink isLink={false} href="/#features">
+                Features
+              </NavLink>
               <button className="bg-indigo-600 text-white px-5 py-2 rounded-full font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200/50">
                 Get Started
               </button>

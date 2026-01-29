@@ -9,45 +9,41 @@ export function useSyncBridge(
   isAuthenticated: boolean = true,
 ) {
   const store = useGenaulStore();
+  const isInitialLoad = useRef(true);
 
-  // 1. Connect to the Vault via TanStack Query
   const {
     data: vaultData,
     save,
     isLoading,
   } = useVault(provider, isAuthenticated);
-  const isInitialLoad = useRef(true);
 
-  // 2. LOAD: When Provider data arrives, hydrate the Zustand Store
+  // 1. HYDRATE: From Cloud to Local Store
   useEffect(() => {
-    if (vaultData && isInitialLoad.current) {
-      console.log(`[Bridge] Hydrating store from ${provider.name}`);
-      store.setAllData(vaultData);
-      isInitialLoad.current = false;
-    } else if (!vaultData && !isLoading && isInitialLoad.current) {
-      // If provider is empty (first time user), mark as hydrated to allow saves
-      store.setAllData({
-        halls: [],
-        echoes: [],
-        reminders: [],
-        streak: store.streak,
-        stats: store.stats,
-        activeHallId: null,
-      });
+    if (!isLoading && isInitialLoad.current) {
+      if (vaultData) {
+        console.log(`[Bridge] Hydrating store from ${provider.name}`);
+        store.setAllData(vaultData);
+      } else {
+        console.log(`[Bridge] No remote data found, starting fresh`);
+        store.setAllData({
+          halls: [],
+          echoes: [],
+          reminders: [],
+          streak: store.streak,
+          stats: store.stats,
+          activeHallId: null,
+        });
+      }
       isInitialLoad.current = false;
     }
   }, [vaultData, isLoading]);
 
-  // 3. SAVE: When Zustand Store changes, push to the Provider (Debounced)
+  // 2. SYNC: From Local Store to Cloud (Debounced)
   useEffect(() => {
-    // DO NOT save if we haven't loaded the data yet (prevents wiping remote data)
-    if (!store.isHydrated || isInitialLoad.current) return;
-
-    const currentProviderName = provider.name;
+    // Only save if hydration is finished and we aren't currently loading
+    if (!store.isHydrated || isInitialLoad.current || isLoading) return;
 
     const debounceTimer = setTimeout(() => {
-      if (provider.name !== currentProviderName) return;
-      // Extract only the GenaulData fields, exclude methods/UI state
       const { halls, echoes, reminders, streak, stats, activeHallId } = store;
 
       const dataToSave = {
@@ -61,7 +57,7 @@ export function useSyncBridge(
 
       console.log(`[Bridge] Triggering save to ${provider.name}`);
       save(dataToSave);
-    }, 1500); // 1.5s debounce to group multiple rapid edits
+    }, 2000); // 2s debounce for safety
 
     return () => clearTimeout(debounceTimer);
   }, [
@@ -70,7 +66,7 @@ export function useSyncBridge(
     store.stats,
     store.streak,
     store.activeHallId,
-    provider.name, // Re-trigger if the provider changes
+    provider.name,
   ]);
 
   return { isLoading };

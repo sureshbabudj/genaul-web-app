@@ -14,6 +14,9 @@ type GenaulState = GenaulData & {
   vaultProvider: ProviderName | "";
   setVaultProvider: (provider: ProviderName | "") => void;
 
+  vaultToken: string | null; // Add this
+  setVaultToken: (token: string | null) => void; // Add this
+
   lastActiveHallId: string | null;
   isHydrated: boolean;
 
@@ -31,12 +34,14 @@ type GenaulState = GenaulData & {
   checkAndIncrementStreak: () => Promise<void>;
   updateStats: (patch: Partial<Stats>) => Promise<void>;
   toggleReminder: (reminderId: string) => Promise<void>;
+  logout: () => void;
 };
 
 export const useGenaulStore = create<GenaulState>()(
   persist(
     (set, get) => ({
       vaultProvider: "",
+      vaultToken: null,
       halls: [],
       echoes: [],
       reminders: [],
@@ -56,6 +61,8 @@ export const useGenaulStore = create<GenaulState>()(
 
       setVaultProvider: (provider) => set({ vaultProvider: provider }),
 
+      setVaultToken: (token) => set({ vaultToken: token }),
+
       getLastActiveHallId: () => get().lastActiveHallId,
 
       getDueEchoes: (hallId) => {
@@ -68,6 +75,8 @@ export const useGenaulStore = create<GenaulState>()(
       setLastActiveHallId: async (id) => {
         set({ lastActiveHallId: id, activeHallId: id });
       },
+
+      logout: () => set({ vaultToken: null, isHydrated: false }),
 
       createHall: async (name) => {
         const id = crypto.randomUUID();
@@ -190,6 +199,7 @@ export const useGenaulStore = create<GenaulState>()(
       partialize: (state: GenaulState) => ({
         vaultProvider: state.vaultProvider,
         lastActiveHallId: state.lastActiveHallId,
+        vaultToken: state.vaultToken,
       }),
     },
   ),
