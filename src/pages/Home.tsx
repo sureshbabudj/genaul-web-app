@@ -8,8 +8,6 @@ import {
   Zap,
   ArrowRight,
 } from "lucide-react";
-import { LandingHeader } from "@/components/LandingHeader";
-import { LandingFooter } from "@/components/LandingFooter";
 import { Link } from "react-router";
 
 // --- Interfaces ---
@@ -72,8 +70,7 @@ const FeatureSection: React.FC<FeatureProps> = ({
 
 const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen container mx-auto text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
-      <LandingHeader />
+    <>
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         {/* Abstract Background Gradients */}
@@ -115,7 +112,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Feature Bento Grid */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
+      <section className="py-24 px-6 max-w-7xl mx-auto" id="features">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <FeatureSection
             icon={<BrainCircuit size={28} />}
@@ -163,15 +160,16 @@ const LandingPage: React.FC = () => {
               Transform your <br />
               Mind?
             </h3>
-            <button className="mt-8 flex items-center gap-2 font-bold hover:gap-4 transition-all">
-              Join the waitlist <ArrowRight />
-            </button>
+            <Link
+              to="/dashboard"
+              className="mt-8 flex items-center gap-2 font-bold hover:gap-4 transition-all"
+            >
+              Get Started <ArrowRight />
+            </Link>
           </div>
         </div>
       </section>
-
-      <LandingFooter />
-    </div>
+    </>
   );
 };
 
