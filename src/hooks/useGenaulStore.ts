@@ -36,6 +36,11 @@ type GenaulState = GenaulData & {
   updateStats: (patch: Partial<Stats>) => Promise<void>;
   toggleReminder: (reminderId: string) => Promise<void>;
   logout: () => void;
+
+  updateHall: (id: string, name: string) => Promise<void>;
+  deleteHall: (id: string) => Promise<void>;
+  updateEcho: (id: string, front: string, back: string) => Promise<void>;
+  deleteEcho: (id: string) => Promise<void>;
 };
 
 export const useGenaulStore = create<GenaulState>()(
@@ -190,6 +195,52 @@ export const useGenaulStore = create<GenaulState>()(
               : r,
           ),
         }));
+      },
+
+      updateHall: async (id: string, name: string) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          halls: state.halls.map((hall) =>
+            hall.id === id ? { ...hall, name, updatedAt: now } : hall,
+          ),
+        }));
+      },
+
+      deleteHall: async (id: string) => {
+        set((state) => ({
+          halls: state.halls.filter((hall) => hall.id !== id),
+          echoes: state.echoes.filter((echo) => echo.hallId !== id),
+        }));
+      },
+
+      updateEcho: async (id: string, front: string, back: string) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          echoes: state.echoes.map((echo) =>
+            echo.id === id ? { ...echo, front, back, updatedAt: now } : echo,
+          ),
+        }));
+      },
+
+      deleteEcho: async (id: string) => {
+        const now = new Date().toISOString();
+        set((state) => {
+          const echoToDelete = state.echoes.find((echo) => echo.id === id);
+          if (!echoToDelete) return state;
+
+          return {
+            echoes: state.echoes.filter((echo) => echo.id !== id),
+            halls: state.halls.map((hall) =>
+              hall.id === echoToDelete.hallId
+                ? {
+                    ...hall,
+                    echoIds: hall.echoIds.filter((echoId) => echoId !== id),
+                    updatedAt: now,
+                  }
+                : hall,
+            ),
+          };
+        });
       },
     }),
     {

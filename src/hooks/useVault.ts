@@ -59,7 +59,7 @@ export function useVault(provider: VaultProvider, enabled: boolean = true) {
   return {
     data: query.data,
     save: mutation.mutate,
-    isLoading: query.isLoading,
+    isLoading: query.isLoading || query.isFetching,
     isSaving: mutation.isPending,
   };
 }

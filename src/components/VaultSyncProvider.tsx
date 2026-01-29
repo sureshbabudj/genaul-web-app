@@ -1,6 +1,6 @@
 import { useSyncBridge } from "@/hooks/useSyncBridge";
 import type { VaultProvider } from "@/lib";
-import { LoadingScreen } from "./LoadingScreen";
+import { SyncLoader } from "./SyncLoader";
 
 /**
  * The Internal Bridge Component (The one that was missing)
@@ -21,5 +21,10 @@ export function SyncBridge({
   if (isLoading) {
     console.log("[Bridge] Loading vault data...");
   }
-  return <>{children}</>;
+  return (
+    <>
+      <SyncLoader show={isLoading} height="4px" />
+      {children}
+    </>
+  );
 }

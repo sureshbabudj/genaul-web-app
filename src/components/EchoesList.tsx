@@ -1,8 +1,31 @@
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import type { Hall } from "@/types";
+import ConfirmationModal from "./ConfirmationModal";
+import { useState } from "react";
 
 export function EchoesList({ activeHall }: { activeHall: Hall }) {
-  const { echoes } = useGenaulStore();
+  const { echoes, deleteEcho } = useGenaulStore();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedEchoId, setSelectedEchoId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => {
+    setSelectedEchoId(id);
+    setModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedEchoId) {
+      deleteEcho(selectedEchoId);
+    }
+    setModalOpen(false);
+    setSelectedEchoId(null);
+  };
+
+  const cancelDelete = () => {
+    setModalOpen(false);
+    setSelectedEchoId(null);
+  };
+
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-bold text-slate-700 mb-4">Stored Echoes</h3>
@@ -26,11 +49,23 @@ export function EchoesList({ activeHall }: { activeHall: Hall }) {
                 <span className="text-[10px] font-bold text-slate-600 uppercase">
                   Next: {new Date(echo.nextReview).toLocaleDateString()}
                 </span>
-                <div className="flex-1 w-2 h-2 rounded-full bg-indigo-400 opacity-0 group-hover:opacity-100 transition" />
+                <button
+                  onClick={() => handleDelete(echo.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))
       )}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        title="Delete Echo"
+        message="Are you sure you want to delete this Echo?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 }
