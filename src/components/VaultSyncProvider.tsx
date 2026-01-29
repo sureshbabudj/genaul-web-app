@@ -1,5 +1,6 @@
 import { useSyncBridge } from "@/hooks/useSyncBridge";
 import type { VaultProvider } from "@/lib";
+import { LoadingScreen } from "./LoadingScreen";
 
 /**
  * The Internal Bridge Component (The one that was missing)
@@ -9,11 +10,16 @@ import type { VaultProvider } from "@/lib";
 export function SyncBridge({
   provider,
   enabled,
+  children,
 }: {
   provider: VaultProvider;
   enabled: boolean;
+  children: React.ReactNode;
 }) {
   // This hook calls useVault internally
-  useSyncBridge(provider, enabled);
-  return null;
+  const { isLoading } = useSyncBridge(provider, enabled);
+  if (isLoading) {
+    console.log("[Bridge] Loading vault data...");
+  }
+  return <>{children}</>;
 }

@@ -1,3 +1,9 @@
+export interface VaultSession {
+  access_token: string;
+  expires_at: number; // Absolute timestamp
+  scope: string;
+}
+
 export type Grade = 1 | 2 | 3 | 4; // 1: Very Hard, 2: Hard, 3: Good, 4: Easy
 
 export interface Echo {

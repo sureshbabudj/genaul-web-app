@@ -6,6 +6,7 @@ export class GoogleDriveProvider implements VaultProvider {
   public readonly name: ProviderName = "google-drive";
   private fileName = "vault.json";
   private accessToken: string | null = null;
+  private isFetching = false;
 
   setToken(token: string) {
     this.accessToken = token;
@@ -22,7 +23,7 @@ export class GoogleDriveProvider implements VaultProvider {
 
     if (searchResponse.status === 401) {
       // This is the signal that the token is dead
-      useGenaulStore.getState().setVaultToken(null);
+      useGenaulStore.getState().setVaultSession(null);
       throw new Error("Session expired");
     }
 
@@ -39,12 +40,10 @@ export class GoogleDriveProvider implements VaultProvider {
     }
 
     const boundary = "genaul_sync_boundary";
-    const body = [
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`,
-      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(data)}\r\n`,
-      `--${boundary}--`,
-    ].join("");
-
+    const content = JSON.stringify(data);
+    const body =
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
     const url = fileId
       ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
       : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
@@ -61,13 +60,14 @@ export class GoogleDriveProvider implements VaultProvider {
     if (!response.ok) {
       const err = await response.json();
       if (response.status === 401)
-        useGenaulStore.getState().setVaultToken(null);
+        useGenaulStore.getState().setVaultSession(null);
       throw new Error(err.error?.message || "Drive Save Failed");
     }
   }
 
   async load(): Promise<GenaulData | null> {
-    if (!this.accessToken) return null;
+    if (this.isFetching) return null; // Prevent concurrent loads
+    this.isFetching = true;
 
     try {
       const searchResponse = await fetch(
@@ -78,7 +78,7 @@ export class GoogleDriveProvider implements VaultProvider {
       );
 
       if (searchResponse.status === 401) {
-        useGenaulStore.getState().setVaultToken(null);
+        useGenaulStore.getState().setVaultSession(null);
         return null;
       }
 
@@ -98,6 +98,8 @@ export class GoogleDriveProvider implements VaultProvider {
     } catch (err) {
       console.error("[GoogleDriveProvider] Load error:", err);
       return null;
+    } finally {
+      this.isFetching = false;
     }
   }
 }

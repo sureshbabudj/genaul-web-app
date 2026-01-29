@@ -11,7 +11,8 @@ import {
 import { initSdks } from "@/lib/sdkLoader";
 import { SyncBridge } from "@/components/VaultSyncProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ProviderName } from "@/types";
+import type { ProviderName, VaultSession } from "@/types";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,18 +26,41 @@ const queryClient = new QueryClient({
 export function ProtectedLayout() {
   const providerType = useGenaulStore((s) => s.vaultProvider);
   const [isSdkReady, setIsSdkReady] = useState(false);
-  const token = useGenaulStore((s) => s.vaultToken);
-  const setToken = useGenaulStore((s) => s.setVaultToken);
+  const session = useGenaulStore((s) => s.vaultSession);
+  const setSession = useGenaulStore((s) => s.setVaultSession);
+  const [isValidating, setIsValidating] = useState(true);
 
   useEffect(() => {
     initSdks().then(() => setIsSdkReady(true));
   }, []);
 
+  useEffect(() => {
+    const validate = async () => {
+      if (!isSdkReady) return;
+
+      if (providerType === "google-drive" && session) {
+        // Check if current time is past the absolute expiry (with 1 min buffer)
+        const isExpired = Date.now() > session.expires_at - 60000;
+
+        if (isExpired) {
+          try {
+            await handleAuth("google-drive", true); // Silent refresh
+          } catch {
+            setSession(null); // Silent failed, force manual login
+          }
+        }
+      }
+      setIsValidating(false);
+    };
+    validate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSdkReady]);
+
   const isCloud =
     providerType === "google-drive" || providerType === "cloudkit";
   const isOffline = providerType === "indexeddb";
   const isNewUser = !isCloud && !isOffline;
-  const hasPermission = isOffline || (isCloud && !!token);
+  const hasPermission = isOffline || (isCloud && !!session);
 
   const activeProvider = useMemo(() => {
     let provider;
@@ -54,29 +78,66 @@ export function ProtectedLayout() {
         return null;
     }
 
-    if (provider && token && "setToken" in provider) {
-      (provider as any).setToken(token);
+    // Fix: Pass the token directly from the session object to the provider instance
+    if (provider && session?.access_token && "setToken" in provider) {
+      (provider as any).setToken(session.access_token);
     }
     return provider;
-  }, [providerType, token]);
+  }, [providerType, session]);
 
-  const handleAuth = async (pType: ProviderName): Promise<"success"> => {
+  useEffect(() => {
+    const validate = async () => {
+      if (!isSdkReady) return;
+
+      if (providerType === "google-drive" && session) {
+        // Check if current time is past the absolute expiry (with 1 min buffer)
+        const isExpired = Date.now() > session.expires_at - 60000;
+
+        if (isExpired) {
+          try {
+            await handleAuth("google-drive", true); // Silent refresh
+          } catch {
+            setSession(null); // Silent failed, force manual login
+          }
+        }
+      }
+      setIsValidating(false);
+    };
+    validate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSdkReady]);
+
+  const handleAuth = async (
+    pType: ProviderName,
+    silent = false,
+  ): Promise<"success"> => {
     if (pType === "google-drive") {
       const googleClientID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
       return new Promise((resolve, reject) => {
         const client = window.google.accounts.oauth2.initTokenClient({
           client_id: googleClientID,
           scope: "https://www.googleapis.com/auth/drive.appdata",
+          prompt: silent ? "none" : "",
           callback: (res: any) => {
             if (res.access_token) {
-              setToken(res.access_token);
+              const newSession: VaultSession = {
+                access_token: res.access_token,
+                scope: res.scope,
+                expires_at: Date.now() + res.expires_in * 1000,
+              };
+              setSession(newSession);
               resolve("success");
             } else {
               reject(new Error(res.error_description || "Auth failed"));
             }
           },
+          error_callback: (err: any) => {
+            reject(err);
+          },
         });
-        client.requestAccessToken({ prompt: "consent" });
+
+        // Remove hardcoded prompt: "consent" so it respects the silent parameter
+        client.requestAccessToken(silent ? { prompt: "none" } : {});
       });
     }
 
@@ -84,7 +145,11 @@ export function ProtectedLayout() {
       const container = window.CloudKit.getDefaultContainer();
       const userIdentity = await container.fetchCurrentUserIdentity();
       if (userIdentity?.userRecordName) {
-        setToken(userIdentity.userRecordName);
+        setSession({
+          access_token: userIdentity.userRecordName,
+          scope: "",
+          expires_at: Date.now() + 3600 * 1000, // Assuming 1 hour expiry for CloudKit
+        });
         return "success";
       }
       throw new Error("CloudKit auth failed");
@@ -93,7 +158,7 @@ export function ProtectedLayout() {
     throw new Error("Unsupported provider");
   };
 
-  if (!isSdkReady) return null;
+  if (!isSdkReady || isValidating) return <LoadingScreen />;
 
   if (isNewUser || !hasPermission) {
     return <VaultOnboarding onAuthenticate={handleAuth} />;
@@ -104,12 +169,13 @@ export function ProtectedLayout() {
       <div className="app-container">
         {activeProvider && (
           <SyncBridge
-            key={`${activeProvider.name}-${token}`}
+            key={`${activeProvider.name}-${session?.access_token}`}
             provider={activeProvider}
             enabled={hasPermission}
-          />
+          >
+            <Outlet />
+          </SyncBridge>
         )}
-        <Outlet />
       </div>
     </QueryClientProvider>
   );

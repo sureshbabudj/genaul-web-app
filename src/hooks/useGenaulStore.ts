@@ -6,6 +6,7 @@ import type {
   GenaulData,
   Stats,
   ProviderName,
+  VaultSession,
 } from "@/types";
 import { calculateNextReview } from "@/lib/fsrsEngine";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -14,8 +15,8 @@ type GenaulState = GenaulData & {
   vaultProvider: ProviderName | "";
   setVaultProvider: (provider: ProviderName | "") => void;
 
-  vaultToken: string | null; // Add this
-  setVaultToken: (token: string | null) => void; // Add this
+  vaultSession: VaultSession | null;
+  setVaultSession: (session: VaultSession | null) => void;
 
   lastActiveHallId: string | null;
   isHydrated: boolean;
@@ -41,7 +42,6 @@ export const useGenaulStore = create<GenaulState>()(
   persist(
     (set, get) => ({
       vaultProvider: "",
-      vaultToken: null,
       halls: [],
       echoes: [],
       reminders: [],
@@ -61,7 +61,8 @@ export const useGenaulStore = create<GenaulState>()(
 
       setVaultProvider: (provider) => set({ vaultProvider: provider }),
 
-      setVaultToken: (token) => set({ vaultToken: token }),
+      vaultSession: null,
+      setVaultSession: (session) => set({ vaultSession: session }),
 
       getLastActiveHallId: () => get().lastActiveHallId,
 
@@ -76,7 +77,7 @@ export const useGenaulStore = create<GenaulState>()(
         set({ lastActiveHallId: id, activeHallId: id });
       },
 
-      logout: () => set({ vaultToken: null, isHydrated: false }),
+      logout: () => set({ vaultSession: null, isHydrated: false }),
 
       createHall: async (name) => {
         const id = crypto.randomUUID();
@@ -199,7 +200,7 @@ export const useGenaulStore = create<GenaulState>()(
       partialize: (state: GenaulState) => ({
         vaultProvider: state.vaultProvider,
         lastActiveHallId: state.lastActiveHallId,
-        vaultToken: state.vaultToken,
+        vaultSession: state.vaultSession,
       }),
     },
   ),
