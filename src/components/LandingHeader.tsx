@@ -57,9 +57,12 @@ export function LandingHeader() {
               <NavLink isLink={false} href="/#features">
                 Features
               </NavLink>
-              <button className="bg-indigo-600 text-white px-5 py-2 rounded-full font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200/50">
+              <Link
+                to="/dashboard"
+                className="bg-indigo-600 text-white px-5 py-2 rounded-full font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200/50"
+              >
                 Get Started
-              </button>
+              </Link>
             </div>
 
             <button
