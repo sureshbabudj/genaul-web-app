@@ -1,14 +1,16 @@
 import { useGenaulStore } from "@/hooks/useGenaulStore";
-import type { Hall } from "@/types";
+import type { Echo, Hall } from "@/types";
 import ConfirmationModal from "./ConfirmationModal";
 import { useState } from "react";
 import ActionMenu from "./ActionMenu";
+import { EchoForm } from "./EchoForm";
 
 export function EchoesList({ activeHall }: { activeHall: Hall }) {
   const { echoes, deleteEcho } = useGenaulStore();
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedEchoId, setSelectedEchoId] = useState<string | null>(null);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingEcho, setEditingEcho] = useState<Echo | null>(null);
   const handleDelete = (id: string) => {
     setSelectedEchoId(id);
     setModalOpen(true);
@@ -25,6 +27,16 @@ export function EchoesList({ activeHall }: { activeHall: Hall }) {
   const cancelDelete = () => {
     setModalOpen(false);
     setSelectedEchoId(null);
+  };
+
+  const handleEdit = (echo: Echo) => {
+    setEditingEcho({ ...echo });
+    setIsEditing(true);
+  };
+
+  const closeEdit = () => {
+    setEditingEcho(null);
+    setIsEditing(false);
   };
 
   return (
@@ -44,7 +56,6 @@ export function EchoesList({ activeHall }: { activeHall: Hall }) {
             >
               <div className="overflow-hidden">
                 <p className="font-bold text-slate-800">{echo.front}</p>
-                <p className="text-sm text-slate-600 truncate">{echo.back}</p>
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-[10px] font-bold text-slate-600 uppercase">
@@ -52,6 +63,10 @@ export function EchoesList({ activeHall }: { activeHall: Hall }) {
                 </span>
                 <ActionMenu
                   actions={[
+                    {
+                      label: "Edit",
+                      onClick: () => handleEdit(echo),
+                    },
                     {
                       label: "Delete",
                       onClick: () => handleDelete(echo.id),
@@ -63,6 +78,15 @@ export function EchoesList({ activeHall }: { activeHall: Hall }) {
             </div>
           ))
       )}
+      <>
+        {editingEcho && isEditing && (
+          <EchoForm
+            editingEcho={editingEcho}
+            closeModal={() => closeEdit()}
+            onChange={(updatedEcho) => setEditingEcho(updatedEcho)}
+          />
+        )}
+      </>
       <ConfirmationModal
         isOpen={isModalOpen}
         title="Delete Echo"

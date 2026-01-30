@@ -6,15 +6,15 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { EchoesList } from "@/components/EchoesList";
 import { HallsList } from "@/components/HallsList";
 import InlineEdit from "@/components/InlineEdit";
+import { EchoForm } from "@/components/EchoForm";
 
 const Dashboard: React.FC = () => {
   const {
     halls,
-    addEcho,
     getDueEchoes,
     getLastActiveHallId,
     setLastActiveHallId,
-    updateHall, // Ensure updateHall is destructured
+    updateHall,
   } = useGenaulStore();
 
   // UI State
@@ -42,9 +42,6 @@ const Dashboard: React.FC = () => {
       await updateHall(activeHallId, newName);
     }
   };
-
-  const [front, setFront] = useState("");
-  const [back, setBack] = useState("");
 
   return (
     <div className="min-h-screen bg-[#FAFAFF] p-4 font-sans">
@@ -89,56 +86,12 @@ const Dashboard: React.FC = () => {
       </main>
 
       {/* --- Modals --- */}
-
       {/* Add Echo Echo */}
       {showAddEcho && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-4xl p-8 w-full max-w-lg shadow-2xl">
-            <div className="flex justify-between mb-6">
-              <h3 className="text-2xl font-black">New Echo</h3>
-              <button onClick={() => setShowAddEcho(false)}>
-                <X />
-              </button>
-            </div>
-            <div className=" space-y-4 mb-8">
-              <div>
-                <label className="text-xs font-bold uppercase text-slate-400 mb-2 block">
-                  Front (Prompt)
-                </label>
-                <textarea
-                  className="w-full p-4 rounded-xl border border-slate-100 bg-slate-50 focus:ring-2 ring-indigo-500 outline-none"
-                  rows={2}
-                  value={front}
-                  onChange={(e) => setFront(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold uppercase text-slate-400 mb-2 block">
-                  Back (Answer)
-                </label>
-                <textarea
-                  className="w-full p-4 rounded-xl border border-slate-100 bg-slate-50 focus:ring-2 ring-indigo-500 outline-none"
-                  rows={3}
-                  value={back}
-                  onChange={(e) => setBack(e.target.value)}
-                />
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                if (activeHallId && front && back) {
-                  addEcho(activeHallId, front, back);
-                  setFront("");
-                  setBack("");
-                  setShowAddEcho(false);
-                }
-              }}
-              className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100"
-            >
-              Store Echo
-            </button>
-          </div>
-        </div>
+        <EchoForm
+          closeModal={() => setShowAddEcho(false)}
+          hallId={activeHallId!}
+        />
       )}
     </div>
   );

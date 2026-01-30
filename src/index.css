@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin '@tailwindcss/typography';
 
 @keyframes infinite-scroll {
   0% {
@@ -11,4 +12,15 @@
 
 .animate-infinite-scroll {
   animation: infinite-scroll 1.2s linear infinite;
+}
+
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { Grade, Echo } from "@/types";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const RecallPage: React.FC = () => {
   const navigate = useNavigate();
@@ -176,7 +177,7 @@ const RecallPage: React.FC = () => {
       <div className="flex-1 w-full pb-8 overflow-hidden max-w-xl px-6 flex flex-col items-center justify-center">
         <div
           className="relative w-full h-full aspect-4/5 perspective-distant"
-          onClick={() => setIsFlipped(isFlipped ? false : true)}
+          onClick={() => !isFlipped && setIsFlipped(true)}
         >
           <div
             className={`relative w-full h-full transition-all duration-700 transform-3d ${isFlipped ? "transform-[rotateY(180deg)]" : ""}`}
@@ -187,9 +188,13 @@ const RecallPage: React.FC = () => {
               </h2>
             </div>
             <div className="absolute inset-0 bg-white border border-slate-100  rounded-[3.5rem] shadow-xl flex flex-col items-center justify-center p-10 backface-hidden transform-[rotateY(180deg)]">
-              <p className="text-xl md:text-2xl font-medium text-center text-slate-900 leading-relaxed overflow-auto">
-                {currentEcho.back}
-              </p>
+              <div className="flex flex-col min-h-0">
+                <RichTextEditor
+                  viewMode={true}
+                  content={currentEcho.back}
+                  onUpdate={() => {}}
+                />
+              </div>
             </div>
           </div>
         </div>
