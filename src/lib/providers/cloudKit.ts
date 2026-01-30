@@ -1,4 +1,9 @@
-import type { GenaulData, ProviderName } from "@/types";
+import type {
+  GenaulData,
+  ProviderName,
+  VaultAccountInfo,
+  VaultSession,
+} from "@/types";
 import type { VaultProvider } from "./types";
 
 export class CloudKitProvider implements VaultProvider {
@@ -111,5 +116,30 @@ export class CloudKitProvider implements VaultProvider {
         "Failed to delete Hall and associated Echoes in CloudKit",
       );
     }
+  }
+
+  async login(_silent?: boolean): Promise<VaultSession> {
+    // update for IndexedDB
+    return Promise.resolve({
+      access_token: "",
+      expires_at: 0,
+      scope: "",
+    });
+  }
+
+  async getAccountInfo(): Promise<VaultAccountInfo> {
+    // update for IndexedDB
+    return Promise.resolve({ email: "", name: "" });
+  }
+
+  async getStorageMetadata(): Promise<{ used: string }> {
+    // update for IndexedDB
+    return Promise.resolve({ used: "0" });
+  }
+
+  async logout(): Promise<void> {
+    // CloudKit doesn't have a specific "logout" URL,
+    // but you should clear any cached record change tags
+    console.log("CloudKit session cleared");
   }
 }

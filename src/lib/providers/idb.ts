@@ -1,4 +1,9 @@
-import type { GenaulData, ProviderName } from "@/types";
+import type {
+  GenaulData,
+  ProviderName,
+  VaultAccountInfo,
+  VaultSession,
+} from "@/types";
 import { openDB, type IDBPDatabase } from "idb";
 import type { VaultProvider } from "./types";
 
@@ -83,5 +88,29 @@ export class IndexedDBProvider implements VaultProvider {
       { halls: updatedHalls, echoes: updatedEchoes },
       this.key,
     );
+  }
+
+  async login(_silent?: boolean): Promise<VaultSession> {
+    // No-op for IndexedDB
+    return Promise.resolve({
+      access_token: "",
+      expires_at: 0,
+      scope: "",
+    });
+  }
+
+  async logout(): Promise<void> {
+    // No-op for IndexedDB
+    return Promise.resolve();
+  }
+
+  async getAccountInfo(): Promise<VaultAccountInfo> {
+    // No-op for IndexedDB
+    return Promise.resolve({ email: "", name: "" });
+  }
+
+  async getStorageMetadata(): Promise<{ used: string }> {
+    // No-op for IndexedDB
+    return Promise.resolve({ used: "0" });
   }
 }

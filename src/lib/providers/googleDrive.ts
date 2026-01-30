@@ -1,4 +1,9 @@
-import type { GenaulData, ProviderName } from "@/types";
+import type {
+  GenaulData,
+  ProviderName,
+  VaultAccountInfo,
+  VaultSession,
+} from "@/types";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import type { VaultProvider } from "./types";
 
@@ -225,5 +230,79 @@ export class GoogleDriveProvider implements VaultProvider {
 
     // Save the updated data
     await this.save({ ...data, halls: updatedHalls, echoes: updatedEchoes });
+  }
+
+  async login(silent = false): Promise<VaultSession> {
+    return new Promise((resolve, reject) => {
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope: "https://www.googleapis.com/auth/drive.appdata email profile",
+        prompt: silent ? "none" : "",
+        callback: (res: {
+          access_token: string;
+          expires_in: number;
+          scope: string;
+        }) => {
+          if (res.access_token) {
+            this.accessToken = res.access_token;
+            resolve({
+              access_token: res.access_token,
+              expires_at: Date.now() + res.expires_in * 1000,
+              scope: res.scope,
+            });
+          } else {
+            reject(new Error("Auth failed"));
+          }
+        },
+      });
+      client.requestAccessToken();
+    });
+  }
+
+  async getAccountInfo(): Promise<VaultAccountInfo> {
+    const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${this.accessToken}` },
+    });
+    const info = await res.json();
+    return {
+      email: info.email,
+      name: info.name,
+      avatarUrl: info.picture,
+    };
+  }
+
+  async getStorageMetadata(): Promise<{ used: string }> {
+    const res = await fetch(
+      "https://www.googleapis.com/drive/v3/about?fields=storageQuota",
+      {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      },
+    );
+    const { storageQuota } = await res.json();
+    // Calculate usage specifically for the App Data folder if possible,
+    // or return total Drive usage as a proxy
+    const mb = (Number(storageQuota.usage) / (1024 * 1024)).toFixed(2);
+    return { used: `${mb} MB` };
+  }
+
+  async logout(): Promise<void> {
+    if (this.accessToken) {
+      try {
+        // 1. Revoke the token with Google so it can't be used again
+        await fetch(
+          `https://oauth2.googleapis.com/revoke?token=${this.accessToken}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          },
+        );
+      } catch (e) {
+        console.warn(
+          "Token revocation failed, proceeding with local logout",
+          e,
+        );
+      }
+    }
+    this.accessToken = null;
   }
 }

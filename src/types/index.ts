@@ -4,6 +4,12 @@ export interface VaultSession {
   scope: string;
 }
 
+export interface VaultAccountInfo {
+  email: string;
+  name: string;
+  avatarUrl?: string;
+}
+
 export type Grade = 1 | 2 | 3 | 4; // 1: Very Hard, 2: Hard, 3: Good, 4: Easy
 
 export interface Echo {
