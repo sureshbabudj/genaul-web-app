@@ -9,7 +9,7 @@ import {
   CloudKitProvider,
 } from "@/lib/providers";
 import { initSdks } from "@/lib/sdkLoader";
-import { SyncBridge } from "@/components/VaultSyncProvider";
+import { SyncBridge } from "@/components/SyncBridge";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ProviderName, VaultSession } from "@/types";
 import { LoadingScreen } from "@/components/LoadingScreen";
