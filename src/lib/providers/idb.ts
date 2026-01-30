@@ -6,6 +6,7 @@ import type {
 } from "@/types";
 import { openDB, type IDBPDatabase } from "idb";
 import type { VaultProvider } from "./types";
+import { formatBytes } from "./utils";
 
 export class IndexedDBProvider implements VaultProvider {
   public readonly name: ProviderName = "indexeddb";
@@ -110,7 +111,17 @@ export class IndexedDBProvider implements VaultProvider {
   }
 
   async getStorageMetadata(): Promise<{ used: string }> {
-    // No-op for IndexedDB
-    return Promise.resolve({ used: "0" });
+    const db = await this.dbPromise;
+    const data = await db.get(this.storeName, this.key);
+    if (!data) return { used: "0 Bytes" };
+
+    // Calculate size of the JSON-stringified object
+    const bytes = new TextEncoder().encode(JSON.stringify(data)).length;
+    return { used: formatBytes(bytes) };
+  }
+
+  async revokeAndReset(): Promise<void> {
+    const db = await this.dbPromise;
+    await db.clear(this.storeName);
   }
 }

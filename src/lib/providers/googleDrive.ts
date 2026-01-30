@@ -6,6 +6,7 @@ import type {
 } from "@/types";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import type { VaultProvider } from "./types";
+import { formatBytes } from "./utils";
 
 interface TokenResponse {
   access_token: string;
@@ -26,6 +27,14 @@ export class GoogleDriveProvider implements VaultProvider {
 
   async save(data: GenaulData): Promise<void> {
     if (!this.accessToken) throw new Error("Google SSO not authenticated");
+
+    // CRITICAL: Never save if the data object is empty or malformed
+    if (!data.halls || data.halls.length === 0) {
+      console.warn(
+        "Attempted to save an empty vault. Aborting to prevent data loss.",
+      );
+      return;
+    }
 
     // 1. Find if file exists
     const searchResponse = await fetch(
@@ -281,37 +290,46 @@ export class GoogleDriveProvider implements VaultProvider {
   }
 
   async getStorageMetadata(): Promise<{ used: string }> {
-    const res = await fetch(
-      "https://www.googleapis.com/drive/v3/about?fields=storageQuota",
-      {
-        headers: { Authorization: `Bearer ${this.accessToken}` },
-      },
+    const search = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder&fields=files(id,size)`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
     );
-    const { storageQuota } = await res.json();
-    // Calculate usage specifically for the App Data folder if possible,
-    // or return total Drive usage as a proxy
-    const mb = (Number(storageQuota.usage) / (1024 * 1024)).toFixed(2);
-    return { used: `${mb} MB` };
+    const { files } = await search.json();
+    if (!files?.[0]) return { used: "0 Bytes" };
+
+    return { used: formatBytes(Number(files[0].size)) };
   }
 
   async logout(): Promise<void> {
-    if (this.accessToken) {
-      try {
-        // 1. Revoke the token with Google so it can't be used again
-        await fetch(
-          `https://oauth2.googleapis.com/revoke?token=${this.accessToken}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          },
-        );
-      } catch (e) {
-        console.warn(
-          "Token revocation failed, proceeding with local logout",
-          e,
-        );
-      }
+    // Just clear the local token
+    this.accessToken = null;
+  }
+
+  async revokeAndReset(): Promise<void> {
+    if (!this.accessToken) return;
+
+    // 1. Delete the specific vault file from the cloud
+    const search = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${this.fileName}'&spaces=appDataFolder`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+    const { files } = await search.json();
+    if (files?.[0]?.id) {
+      await fetch(`https://www.googleapis.com/drive/v3/files/${files[0].id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      });
     }
+
+    // 2. Revoke the OAuth permission entirely
+    await fetch(
+      `https://oauth2.googleapis.com/revoke?token=${this.accessToken}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      },
+    );
+
     this.accessToken = null;
   }
 }

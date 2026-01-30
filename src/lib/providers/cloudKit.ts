@@ -5,6 +5,7 @@ import type {
   VaultSession,
 } from "@/types";
 import type { VaultProvider } from "./types";
+import { formatBytes } from "./utils";
 
 export class CloudKitProvider implements VaultProvider {
   public readonly name: ProviderName = "cloudkit";
@@ -141,13 +142,39 @@ export class CloudKitProvider implements VaultProvider {
   }
 
   async getStorageMetadata(): Promise<{ used: string }> {
-    // update for IndexedDB
-    return Promise.resolve({ used: "0" });
+    const container = window.CloudKit.getDefaultContainer();
+    const privateDB = container.privateCloudDatabase;
+    const { records } = await privateDB.fetchRecords([this.recordName]);
+    if (!records?.[0]) return { used: "0 Bytes" };
+
+    // Calculate size of the payload string specifically
+    const bytes = new TextEncoder().encode(
+      records[0].fields.payload.value,
+    ).length;
+    return { used: formatBytes(bytes) };
   }
 
   async logout(): Promise<void> {
-    // CloudKit doesn't have a specific "logout" URL,
-    // but you should clear any cached record change tags
-    console.log("CloudKit session cleared");
+    try {
+      await window.CloudKit.getDefaultContainer().signOut();
+    } catch (_error) {
+      // Just clear the local token
+      console.warn("CloudKit sign out failed, clearing local session.");
+    }
+  }
+
+  async revokeAndReset(): Promise<void> {
+    const privateDB =
+      window.CloudKit.getDefaultContainer().privateCloudDatabase;
+
+    // 1. Delete the main Vault record
+    try {
+      await privateDB.deleteRecords([this.recordName]);
+    } catch (e) {
+      console.warn("Record already gone or deletion failed", e);
+    }
+
+    // 2. Sign out
+    await this.logout();
   }
 }

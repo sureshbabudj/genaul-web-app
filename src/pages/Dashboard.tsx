@@ -27,7 +27,6 @@ const Dashboard: React.FC = () => {
   }, [activeHallId, setLastActiveHallId]);
 
   const activeHall = halls.find((h) => h.id === activeHallId);
-  const totalDue = halls.reduce((acc, h) => acc + getDueEchoes(h.id).length, 0);
 
   // Inside your component:
   const navigate = useNavigate();
@@ -45,7 +44,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFF] p-4 font-sans">
-      <DashboardHeader startRecall={startRecall} totalDue={totalDue} />
+      <DashboardHeader startRecall={startRecall} />
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Sidebar: Halls List */}

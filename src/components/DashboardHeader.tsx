@@ -1,17 +1,13 @@
 import { useGenaulStore } from "@/hooks/useGenaulStore";
-import { Bell } from "lucide-react";
+import { Bell, UserCircle2Icon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
-export function DashboardHeader({
-  startRecall,
-  totalDue,
-}: {
-  startRecall: () => void;
-  totalDue: number;
-}) {
-  const { getLastActiveHallId } = useGenaulStore();
+export function DashboardHeader({ startRecall }: { startRecall?: () => void }) {
+  const { halls, getDueEchoes, getLastActiveHallId } = useGenaulStore();
+  const totalDue = halls.reduce((acc, h) => acc + getDueEchoes(h.id).length, 0);
   const [activeHallId] = useState<string | null>(getLastActiveHallId());
+
   return (
     <header className="max-w-6xl mx-auto flex justify-between items-center mb-8 py-2">
       <Link to="/" className="flex items-center gap-2">
@@ -25,13 +21,15 @@ export function DashboardHeader({
       </Link>
 
       <div className="flex items-center gap-4">
-        <button
-          onClick={startRecall}
-          disabled={!activeHallId}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
-        >
-          Recall Now
-        </button>
+        {startRecall && (
+          <button
+            onClick={startRecall}
+            disabled={!activeHallId}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
+          >
+            Recall Now
+          </button>
+        )}
 
         <div className="relative p-2 bg-white rounded-xl border border-slate-100 shadow-sm">
           <Bell size={20} className="text-slate-400" />
@@ -41,6 +39,13 @@ export function DashboardHeader({
             </span>
           )}
         </div>
+
+        <Link
+          to="/settings"
+          className="relative p-2 bg-indigo-500 rounded-xl border border-slate-100 shadow-sm"
+        >
+          <UserCircle2Icon size={20} className="text-white" />
+        </Link>
       </div>
     </header>
   );

@@ -7,6 +7,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import RecallSession from "./pages/Recall";
 import NotFound from "./pages/Notfound";
+import Settings from "./pages/Settings";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/dashboard", Component: Dashboard },
       { path: "/recall", Component: RecallSession },
+      { path: "/settings", Component: Settings },
     ],
   },
   {

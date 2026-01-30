@@ -21,4 +21,5 @@ export interface VaultProvider {
   logout(): Promise<void>;
   getAccountInfo(): Promise<VaultAccountInfo>;
   getStorageMetadata(): Promise<{ used: string }>;
+  revokeAndReset(): Promise<void>;
 }
