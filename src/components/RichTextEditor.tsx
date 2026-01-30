@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -69,6 +69,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const url = window.prompt("URL:", "https://");
     if (url) editor?.chain().focus().setLink({ href: url }).run();
   }, [editor]);
+
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   if (!editor) return null;
 
