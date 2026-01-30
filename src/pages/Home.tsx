@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Sparkles,
   BrainCircuit,
@@ -7,6 +7,9 @@ import {
   Layers,
   Zap,
   ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
 } from "lucide-react";
 import { Link } from "react-router";
 
@@ -22,6 +25,11 @@ interface FeatureProps {
 interface GlassButtonProps {
   children: React.ReactNode;
   primary?: boolean;
+}
+
+interface FAQProps {
+  question: string;
+  answer: string;
 }
 
 // --- Components ---
@@ -68,6 +76,26 @@ const FeatureSection: React.FC<FeatureProps> = ({
   </div>
 );
 
+const FAQItem: React.FC<FAQProps> = ({ question, answer }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border-b border-slate-100 last:border-0">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full py-6 flex items-center justify-between text-left hover:text-indigo-600 transition-colors"
+      >
+        <span className="text-lg font-bold text-slate-800">{question}</span>
+        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+      </button>
+      {isOpen && (
+        <div className="pb-6 text-slate-500 leading-relaxed text-md animate-in fade-in slide-in-from-top-2 duration-300">
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LandingPage: React.FC = () => {
   return (
     <>
@@ -99,15 +127,16 @@ const LandingPage: React.FC = () => {
             truly matters.
           </p>
 
-          <Link
-            to="/dashboard"
-            className="flex flex-col sm:flex-row items-center justify-center gap-6"
-          >
-            <GlassButton primary>
-              Enter the Hall <ArrowRight size={20} />
-            </GlassButton>
-            <GlassButton>Explore Features</GlassButton>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <Link to="/dashboard">
+              <GlassButton primary>
+                Enter the Hall <ArrowRight size={20} />
+              </GlassButton>
+            </Link>
+            <a href="#features">
+              <GlassButton>Explore Features</GlassButton>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -167,6 +196,142 @@ const LandingPage: React.FC = () => {
               Get Started <ArrowRight />
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="py-32 px-6 overflow-hidden bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            {/* Visual Side: The Brand Mark Study */}
+            <div className="w-full lg:w-1/2 relative">
+              <div className="absolute inset-0 bg-indigo-50 rounded-[3rem] -rotate-3 scale-105" />
+              <div className="relative bg-white border border-indigo-100 p-12 rounded-[3rem] shadow-2xl">
+                <div className="flex flex-col gap-12">
+                  <div className="space-y-4">
+                    <div className="flex items-baseline gap-4">
+                      <span className="text-5xl font-black text-indigo-600">
+                        Gen
+                      </span>
+                      <span className="text-slate-300 text-3xl font-light">
+                        / gnōsis /
+                      </span>
+                    </div>
+                    <p className="text-xl text-slate-600 font-medium">
+                      The Greek pursuit of{" "}
+                      <span className="text-indigo-600">Knowledge</span>. Not
+                      just information, but the deep, intuitive insight that
+                      comes from total mastery.
+                    </p>
+                  </div>
+
+                  <div className="w-full h-px bg-slate-100 relative">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4">
+                      <ShieldCheck className="text-indigo-200 w-8 h-8" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-baseline gap-4">
+                      <span className="text-5xl font-black text-blue-600">
+                        Aul
+                      </span>
+                      <span className="text-slate-300 text-3xl font-light">
+                        / aula /
+                      </span>
+                    </div>
+                    <p className="text-xl text-slate-600 font-medium">
+                      The Latin concept of the{" "}
+                      <span className="text-blue-600">Hall</span>. A sacred,
+                      architectural space dedicated to focus, ceremony, and the
+                      preservation of truth.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Text Side: The Manifesto */}
+            <div className="w-full lg:w-1/2 space-y-8">
+              <div className="inline-block px-4 py-1 rounded-md bg-indigo-50 text-indigo-600 font-bold text-sm uppercase tracking-widest">
+                The Philosophy
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1]">
+                Architecting the <br />
+                Digital Mind.
+              </h2>
+              <div className="space-y-6 text-lg text-slate-500 leading-relaxed">
+                <p>
+                  The modern student is drowning in a sea of fragmented data.
+                  Information is easy to find, but hard to{" "}
+                  <span className="text-slate-900 font-semibold italic text-indigo-600/80">
+                    keep
+                  </span>
+                  .
+                </p>
+                <p>
+                  <span className="text-slate-900 font-bold">Genaul</span> was
+                  born from a simple question: What if we treated our memory
+                  with the same architectural rigor as a cathedral?
+                </p>
+                <p>
+                  By combining the ancient discipline of the "Memory Palace"
+                  with state-of-the-art predictive algorithms, we’ve built more
+                  than a flashcard app. We’ve built a{" "}
+                  <span className="text-slate-900 font-semibold">
+                    sanctuary for insight
+                  </span>
+                  .
+                </p>
+              </div>
+
+              <div className="pt-6 flex items-center gap-8">
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-slate-900">
+                    100%
+                  </span>
+                  <span className="text-sm text-slate-400 font-medium">
+                    Sovereign Data
+                  </span>
+                </div>
+                <div className="w-px h-10 bg-slate-200" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-slate-900">0ms</span>
+                  <span className="text-sm text-slate-400 font-medium">
+                    Latency Sync
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 px-6 max-w-3xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-12 text-center tracking-tight">
+          Common Questions
+        </h2>
+        <div className="space-y-2">
+          <FAQItem
+            question="Where is my data actually stored?"
+            answer="Genaul is a privacy-first application. Your 'Halls' and 'Echoes' are stored directly in your own personal cloud—either Google Drive's appDataFolder, Apple iCloud (CloudKit), or locally in your browser's IndexedDB. We never see your data."
+          />
+          <FAQItem
+            question="Can I use it offline?"
+            answer="Yes. Genaul uses an Offline-First architecture. If you choose the IndexedDB provider, your data stays strictly in your browser. If using Cloud providers, the app will sync your changes as soon as you reconnect."
+          />
+          <FAQItem
+            question="What happens if I want to switch cloud providers?"
+            answer="You can use the 'Export' feature in your Account settings to download your entire vault as an Excel/CSV file. You can then revoke permissions from your old provider and start fresh with a new one."
+          />
+          <FAQItem
+            question="Is the 'Silent Refresh' for Google Drive secure?"
+            answer="Absolutely. We use Google's official Identity Services. By using silent refreshes, we ensure your session stays active without storing long-lived 'Refresh Tokens' in your browser, keeping your account highly secure."
+          />
+          <FAQItem
+            question="How do I permanently delete my data?"
+            answer="Genaul gives you full control. Under settings, the 'Revoke & Reset' option will not only sign you out but will physically send a command to Google or Apple to delete your vault.json file from their servers."
+          />
         </div>
       </section>
     </>

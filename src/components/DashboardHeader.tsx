@@ -1,12 +1,18 @@
 import { useGenaulStore } from "@/hooks/useGenaulStore";
+import type { Echo } from "@/types";
 import { Bell, UserCircle2Icon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 export function DashboardHeader({ startRecall }: { startRecall?: () => void }) {
-  const { halls, getDueEchoes, getLastActiveHallId } = useGenaulStore();
+  const { halls, getDueEchoes, lastActiveHallId, echoes } = useGenaulStore();
   const totalDue = halls.reduce((acc, h) => acc + getDueEchoes(h.id).length, 0);
-  const [activeHallId] = useState<string | null>(getLastActiveHallId());
+  const [activeEchoes, setActiveEchoes] = useState<Echo[]>([]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActiveEchoes(echoes.filter((e) => e.hallId === lastActiveHallId));
+  }, [echoes, lastActiveHallId]);
 
   return (
     <header className="max-w-6xl mx-auto flex justify-between items-center mb-8 py-2">
@@ -24,8 +30,8 @@ export function DashboardHeader({ startRecall }: { startRecall?: () => void }) {
         {startRecall && (
           <button
             onClick={startRecall}
-            disabled={!activeHallId}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
+            disabled={!lastActiveHallId || activeEchoes.length === 0}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-medium hover:bg-indigo-700 transition shadow-lg shadow-indigo-200/50"
           >
             Recall Now
           </button>
