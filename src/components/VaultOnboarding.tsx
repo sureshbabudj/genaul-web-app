@@ -5,7 +5,7 @@ import { useState } from "react";
 export function VaultOnboarding({
   onAuthenticate,
 }: {
-  onAuthenticate: (pr: ProviderName) => Promise<"success">;
+  onAuthenticate: (pr: ProviderName) => Promise<void>;
 }) {
   const [modal, setModal] = useState<{
     show: boolean;

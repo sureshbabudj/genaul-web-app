@@ -119,12 +119,20 @@ export class CloudKitProvider implements VaultProvider {
   }
 
   async login(_silent?: boolean): Promise<VaultSession> {
-    // update for IndexedDB
-    return Promise.resolve({
-      access_token: "",
-      expires_at: 0,
-      scope: "",
-    });
+    try {
+      const container = window.CloudKit.getDefaultContainer();
+      const userIdentity = await container.fetchCurrentUserIdentity();
+      if (userIdentity?.userRecordName) {
+        return {
+          access_token: userIdentity.userRecordName,
+          scope: "",
+          expires_at: Date.now() + 3600 * 1000, // Assuming 1 hour expiry for CloudKit
+        };
+      }
+      throw new Error("CloudKit auth failed");
+    } catch (e) {
+      throw new Error((e as Error).message || "CloudKit auth failed");
+    }
   }
 
   async getAccountInfo(): Promise<VaultAccountInfo> {

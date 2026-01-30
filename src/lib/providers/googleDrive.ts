@@ -7,6 +7,13 @@ import type {
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import type { VaultProvider } from "./types";
 
+interface TokenResponse {
+  access_token: string;
+  expires_in: number;
+  scope: string;
+  error_description?: string;
+}
+
 export class GoogleDriveProvider implements VaultProvider {
   public readonly name: ProviderName = "google-drive";
   private fileName = "vault.json";
@@ -233,29 +240,31 @@ export class GoogleDriveProvider implements VaultProvider {
   }
 
   async login(silent = false): Promise<VaultSession> {
+    const googleClientID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
     return new Promise((resolve, reject) => {
       const client = window.google.accounts.oauth2.initTokenClient({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        client_id: googleClientID,
+        // Added email/profile scopes so we can fetch account details later
         scope: "https://www.googleapis.com/auth/drive.appdata email profile",
-        prompt: silent ? "none" : "",
-        callback: (res: {
-          access_token: string;
-          expires_in: number;
-          scope: string;
-        }) => {
+        hint: silent ? "none" : "",
+        callback: (res: TokenResponse) => {
           if (res.access_token) {
-            this.accessToken = res.access_token;
-            resolve({
+            const session: VaultSession = {
               access_token: res.access_token,
-              expires_at: Date.now() + res.expires_in * 1000,
               scope: res.scope,
-            });
+              expires_at: Date.now() + res.expires_in * 1000,
+            };
+            this.accessToken = res.access_token;
+            resolve(session);
           } else {
-            reject(new Error("Auth failed"));
+            reject(new Error(res.error_description || "Auth failed"));
           }
         },
+        error_callback: (err: unknown) => reject(err),
       });
-      client.requestAccessToken();
+
+      client.requestAccessToken(silent ? { prompt: "none" } : {});
     });
   }
 
