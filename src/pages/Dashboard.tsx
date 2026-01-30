@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Layers, X } from "lucide-react";
+import { Plus, Layers } from "lucide-react";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import { useNavigate } from "react-router";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -9,13 +9,8 @@ import InlineEdit from "@/components/InlineEdit";
 import { EchoForm } from "@/components/EchoForm";
 
 const Dashboard: React.FC = () => {
-  const {
-    halls,
-    getDueEchoes,
-    getLastActiveHallId,
-    setLastActiveHallId,
-    updateHall,
-  } = useGenaulStore();
+  const { halls, getLastActiveHallId, setLastActiveHallId, updateHall } =
+    useGenaulStore();
 
   // UI State
   const activeHallId = getLastActiveHallId();
