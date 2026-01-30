@@ -2,6 +2,8 @@ import { useGenaulStore } from "@/hooks/useGenaulStore";
 import type { ProviderName } from "@/types";
 import { useState } from "react";
 
+const ENABLE_CLOUDKIT = import.meta.env.VITE_ENABLE_CLOUDKIT === "true";
+
 export function VaultOnboarding({
   onAuthenticate,
 }: {
@@ -122,20 +124,22 @@ export function VaultOnboarding({
                   </div>
                 </button>
 
-                <button
-                  onClick={() => handleChoice("cloudkit")}
-                  className="flex items-center p-4 border border-slate-200 shadow-lg rounded-xl hover:bg-indigo-100 transition-colors text-left group"
-                >
-                  <div className="w-12 h-12 bg-indigo-200 text-white rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                    🍎
-                  </div>
-                  <div>
-                    <div className="font-bold">iCloud</div>
-                    <div className="text-sm opacity-70">
-                      Native Apple sync across all your devices.
+                {ENABLE_CLOUDKIT && (
+                  <button
+                    onClick={() => handleChoice("cloudkit")}
+                    className="flex items-center p-4 border border-slate-200 shadow-lg rounded-xl hover:bg-indigo-100 transition-colors text-left group"
+                  >
+                    <div className="w-12 h-12 bg-indigo-200 text-white rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                      🍎
                     </div>
-                  </div>
-                </button>
+                    <div>
+                      <div className="font-bold">iCloud</div>
+                      <div className="text-sm opacity-70">
+                        Native Apple sync across all your devices.
+                      </div>
+                    </div>
+                  </button>
+                )}
               </div>
             </>
           ) : (
