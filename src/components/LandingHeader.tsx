@@ -1,23 +1,24 @@
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
 import { Link } from "react-router";
 
 interface NavLinkProps {
   isLink?: boolean;
   href: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 export const NavLink: React.FC<NavLinkProps> = ({
   href,
   children,
   isLink = true,
+  className = "",
 }) => {
-  const className =
-    "text-slate-600 hover:text-indigo-600 transition font-medium";
   if (!isLink) {
     return (
-      <a href={href} className={className}>
+      <a
+        href={href}
+        className={`text-slate-600 hover:text-indigo-600 transition font-medium ${className}`}
+      >
         {children}
       </a>
     );
@@ -25,7 +26,7 @@ export const NavLink: React.FC<NavLinkProps> = ({
   return (
     <Link
       to={href}
-      className="text-slate-600 hover:text-indigo-600 transition font-medium"
+      className={`text-slate-600 hover:text-indigo-600 transition font-medium ${className}`}
     >
       {children}
     </Link>
@@ -33,7 +34,6 @@ export const NavLink: React.FC<NavLinkProps> = ({
 };
 
 export function LandingHeader() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <header>
       {/* Navigation */}
@@ -56,8 +56,12 @@ export function LandingHeader() {
               </span>
             </Link>
 
-            <div className="hidden md:flex items-center space-x-8">
-              <NavLink isLink={false} href="/#features">
+            <div className="flex items-center space-x-8">
+              <NavLink
+                isLink={false}
+                href="/#features"
+                className="hidden md:block"
+              >
                 Features
               </NavLink>
               <Link
@@ -67,14 +71,6 @@ export function LandingHeader() {
                 Get Started
               </Link>
             </div>
-
-            <button
-              className="md:hidden p-2 text-slate-600"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
       </nav>

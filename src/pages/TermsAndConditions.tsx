@@ -1,9 +1,8 @@
 import { Scale, AlertTriangle } from "lucide-react";
-import { useNavigate } from "react-router";
 import { SEO } from "../components/SEO";
+import { PageFooter } from "@/components/PageFooter";
 
 const TermsAndConditions = () => {
-  const navigate = useNavigate();
   return (
     <div className="bg-slate-50 py-16 px-6">
       <SEO
@@ -68,14 +67,7 @@ const TermsAndConditions = () => {
           </section>
         </div>
 
-        <footer className="mt-16 text-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100"
-          >
-            I Understand
-          </button>
-        </footer>
+        <PageFooter />
       </div>
     </div>
   );

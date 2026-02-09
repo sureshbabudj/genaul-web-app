@@ -1,9 +1,8 @@
 import { ShieldCheck } from "lucide-react";
-import { useNavigate } from "react-router";
 import { SEO } from "../components/SEO";
+import { PageFooter } from "@/components/PageFooter";
 
 const PrivacyPolicy = () => {
-  const navigate = useNavigate();
   return (
     <div className=" bg-slate-50 py-16 px-6">
       <SEO
@@ -72,17 +71,7 @@ const PrivacyPolicy = () => {
           </section>
         </div>
 
-        <footer className="mt-16 pt-8 border-t border-slate-100 flex justify-between items-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-indigo-600 font-bold hover:underline"
-          >
-            Go Back
-          </button>
-          <span className="text-slate-300 font-black tracking-widest text-xs uppercase">
-            Genaul.
-          </span>
-        </footer>
+        <PageFooter />
       </div>
     </div>
   );
