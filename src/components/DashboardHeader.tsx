@@ -18,7 +18,13 @@ export function DashboardHeader({ startRecall }: { startRecall?: () => void }) {
     <header className="max-w-6xl mx-auto flex justify-between items-center mb-8 py-2">
       <Link to="/" className="flex items-center gap-2">
         <div className="border-indigo-600 p-1.5 rounded-lg shadow-inner">
-          <img src="./icon.svg" className="text-white w-6 h-6 color-white" />
+          <img
+            src="./icon.svg"
+            alt="Genaul Logo"
+            width="24"
+            height="24"
+            className="text-white w-6 h-6 color-white"
+          />
         </div>
 
         <span className="text-2xl font-black text-slate-900 tracking-tighter">

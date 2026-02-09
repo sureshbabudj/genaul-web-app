@@ -71,7 +71,13 @@ export function VaultOnboarding({
           <div className="max-w-md space-y-4">
             <div className="flex items-center gap-2 mb-6">
               <div className="bg-indigo-100 p-2 rounded-lg">
-                <img src="./icon.svg" className="w-6 h-6" alt="Genaul Icon" />
+                <img
+                  src="./icon.svg"
+                  className="w-6 h-6"
+                  alt="Genaul Icon"
+                  width="24"
+                  height="24"
+                />
               </div>
               <span className="text-4xl font-black tracking-tighter">
                 GENAUL.

@@ -5,7 +5,13 @@ export function LandingFooter() {
     <footer className="py-20 text-center border-t border-indigo-50 bg-white">
       <div className="flex items-center justify-center gap-2 mb-6">
         <div className="border-indigo-600 rounded-lg flex items-center justify-center shadow-inner">
-          <img src="./icon.svg" className="text-white w-6 h-6 color-white" />
+          <img
+            src="./icon.svg"
+            alt="Genaul Logo"
+            width="24"
+            height="24"
+            className="text-white w-6 h-6 color-white"
+          />
         </div>
         <span className="text-xl font-black text-slate-900 tracking-tighter">
           GENAUL.

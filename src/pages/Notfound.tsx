@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router";
 import { SearchX, Home, ArrowLeft } from "lucide-react";
+import { SEO } from "../components/SEO";
 
 const NotFound = () => {
   const navigate = useNavigate();
 
   return (
     <div className="flex-1 h-full bg-[#FAFAFF] flex flex-col items-center justify-between py-20 px-6 text-center">
-      =
+      <SEO title="404 - Page Not Found" noindex={true} />
       <div className="relative mb-8">
         <div className="text-[12rem] font-black text-slate-100 leading-none">
           404

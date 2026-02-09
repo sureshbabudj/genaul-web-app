@@ -44,6 +44,9 @@ export function LandingHeader() {
               <div className="border-indigo-600 p-1.5 rounded-lg shadow-inner">
                 <img
                   src="./icon.svg"
+                  alt="Genaul Logo"
+                  width="24"
+                  height="24"
                   className="text-white w-6 h-6 color-white"
                 />
               </div>

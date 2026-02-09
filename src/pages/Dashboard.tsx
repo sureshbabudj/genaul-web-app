@@ -7,6 +7,7 @@ import { EchoesList } from "@/components/EchoesList";
 import { HallsList } from "@/components/HallsList";
 import InlineEdit from "@/components/InlineEdit";
 import { EchoForm } from "@/components/EchoForm";
+import { SEO } from "@/components/SEO";
 
 const Dashboard: React.FC = () => {
   const { halls, getLastActiveHallId, setLastActiveHallId, updateHall } =
@@ -39,6 +40,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFF] p-4 font-sans">
+      <SEO title="Dashboard" noindex={true} />
       <DashboardHeader startRecall={startRecall} />
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">

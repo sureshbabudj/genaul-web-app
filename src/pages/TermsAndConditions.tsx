@@ -1,10 +1,15 @@
 import { Scale, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router";
+import { SEO } from "../components/SEO";
 
 const TermsAndConditions = () => {
   const navigate = useNavigate();
   return (
     <div className="bg-slate-50 py-16 px-6">
+      <SEO
+        title="Terms and Conditions"
+        description="Terms and Conditions for Genaul. Please read carefully."
+      />
       <div className="max-w-3xl mx-auto bg-white rounded-[2.5rem] p-8 md:p-16 border border-slate-100 shadow-sm">
         <header className="mb-12">
           <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">

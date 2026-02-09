@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "react-router";
+import { SEO } from "../components/SEO";
 
 // --- Interfaces ---
 interface FeatureProps {
@@ -99,6 +100,7 @@ const FAQItem: React.FC<FAQProps> = ({ question, answer }) => {
 const LandingPage: React.FC = () => {
   return (
     <>
+      <SEO />
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         {/* Abstract Background Gradients */}

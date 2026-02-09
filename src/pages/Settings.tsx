@@ -99,7 +99,13 @@ export default function Settings() {
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-indigo-50 border border-slate-100 flex items-center justify-center overflow-hidden">
               {account?.avatarUrl ? (
-                <img src={account.avatarUrl} alt="Avatar" />
+                <img
+                  src={account.avatarUrl}
+                  alt={account.name || "User Avatar"}
+                  width="56"
+                  height="56"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <span className="text-indigo-600 font-bold text-xl uppercase">
                   {account?.name?.[0] || "U"}
