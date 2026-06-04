@@ -18,7 +18,7 @@ export const SEO = ({
   keywords = "local first notes, markdown editor, knowledge base, obsidian alternative, private workspace, note taking app, local first software, personal knowledge management, second brain, privacy focused notes",
   canonical = "https://genaul.com",
   ogType = "website",
-  ogImage = "https://genaul.com/og-image.png", // Replace with actual OG image
+  ogImage = "https://genaul.com/og-image-v2.png", // Replace with actual OG image
   twitterHandle = "@sureshbabudj",
   noindex = false,
   children,

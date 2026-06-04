@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useGenaulStore } from "@/hooks/useGenaulStore";
 import {
   ChevronRight,
@@ -36,6 +36,7 @@ export function SidebarTree() {
   // Auto-expand the active hall on mount if needed
   useEffect(() => {
     if (lastActiveHallId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpandedHalls((prev) => {
         const next = new Set(prev);
         next.add(lastActiveHallId);
@@ -128,7 +129,11 @@ export function SidebarTree() {
                     )}
                   </span>
                   <span className="text-slate-400 shrink-0">
-                    {isExpanded ? <FolderOpen size={14} /> : <Folder size={14} />}
+                    {isExpanded ? (
+                      <FolderOpen size={14} />
+                    ) : (
+                      <Folder size={14} />
+                    )}
                   </span>
                   <span className="truncate">{hall.name}</span>
                 </div>
@@ -183,7 +188,10 @@ export function SidebarTree() {
                         }`}
                       >
                         <div className="flex items-center gap-1.5 overflow-hidden">
-                          <FileText size={14} className="text-slate-400 shrink-0" />
+                          <FileText
+                            size={14}
+                            className="text-slate-400 shrink-0"
+                          />
                           <span className="truncate">
                             {echo.front || "Untitled"}
                           </span>

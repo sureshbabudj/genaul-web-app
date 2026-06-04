@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Sparkles,
   BrainCircuit,
-  Timer,
   Target,
   Layers,
   Zap,

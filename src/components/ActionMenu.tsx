@@ -11,11 +11,13 @@ import { MoreVertical } from "lucide-react";
 interface ActionMenuProps {
   actions: { label: string; onClick: () => void; isDestructive?: boolean }[];
   triggerClassName?: string;
+  trigger?: React.ReactNode;
 }
 
 const ActionMenu: React.FC<ActionMenuProps> = ({
   actions,
   triggerClassName,
+  trigger,
 }) => {
   const [showBottomSheet, setShowBottomSheet] = useState(false);
 
@@ -28,7 +30,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
             triggerClassName || ""
           }`}
         >
-          <MoreVertical size={16} />
+          {trigger || <MoreVertical size={16} />}
         </MenuButton>
         <Transition
           enter="transition ease-out duration-100"
@@ -72,7 +74,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
         role="button"
         tabIndex={0}
       >
-        <MoreVertical size={16} />
+        {trigger || <MoreVertical size={16} />}
       </div>
 
       {/* Bottom Sheet for Mobile */}

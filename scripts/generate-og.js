@@ -26,7 +26,7 @@ const __dirname = path.dirname(__filename);
   }
   
   // Capture screenshot directly to the public folder
-  const destPath = path.resolve(__dirname, '../public/og-image.png');
+  const destPath = path.resolve(__dirname, '../public/og-image-v2.png');
   console.log('Capturing screenshot...');
   await page.screenshot({ path: destPath });
   
