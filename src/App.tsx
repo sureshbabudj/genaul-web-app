@@ -8,8 +8,13 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import RecallSession from "./pages/Recall";
 import NotFound from "./pages/Notfound";
 import Settings from "./pages/Settings";
+import OGImageTemplate from "./pages/OGImageTemplate";
 
 const router = createBrowserRouter([
+  {
+    path: "/og-template",
+    Component: OGImageTemplate,
+  },
   {
     element: <ProtectedLayout />,
     children: [
