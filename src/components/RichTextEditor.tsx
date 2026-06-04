@@ -18,6 +18,10 @@ import {
   ListOrdered,
   Quote,
   Code,
+  SquareTerminal,
+  Heading1,
+  Heading2,
+  Heading3,
   Link as LinkIcon,
   Link2Off,
   Youtube,
@@ -78,6 +82,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   if (!editor) return null;
 
+  const isH1 = editor.isActive("heading") && editor.getAttributes("heading").level === 1;
+  const isH2 = editor.isActive("heading") && editor.getAttributes("heading").level === 2;
+  const isH3 = editor.isActive("heading") && editor.getAttributes("heading").level === 3;
+
   const btn = (active: boolean) =>
     `p-2 rounded-md transition-all ${
       active
@@ -90,6 +98,29 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {/* TOOLBAR */}
       {!viewMode && (
         <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-white px-2 py-2">
+          {/* Headings */}
+          <button
+            className={btn(isH1)}
+            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+            title="Heading 1"
+          >
+            <Heading1 size={18} />
+          </button>
+          <button
+            className={btn(isH2)}
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            title="Heading 2"
+          >
+            <Heading2 size={18} />
+          </button>
+          <button
+            className={btn(isH3)}
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            title="Heading 3"
+          >
+            <Heading3 size={18} />
+          </button>
+          <Divider />
           {/* Style */}
           <button
             className={btn(editor.isActive("bold"))}
@@ -118,6 +149,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             title="Strike"
           >
             <Strikethrough size={18} />
+          </button>
+          <button
+            className={btn(editor.isActive("code"))}
+            onClick={() => editor.chain().focus().toggleCode().run()}
+            title="Inline Code"
+          >
+            <Code size={18} />
           </button>
           <Divider />
           {/* Align */}
@@ -170,7 +208,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             title="Code Block"
           >
-            <Code size={18} />
+            <SquareTerminal size={18} />
           </button>
           <Divider />
           {/* Insert & Actions */}

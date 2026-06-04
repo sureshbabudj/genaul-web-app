@@ -3,7 +3,6 @@ import { useGenaulStore } from "@/hooks/useGenaulStore";
 import { createProviderInstance } from "@/lib/providers";
 import { LogOut, Download, ArrowLeft, Trash2Icon } from "lucide-react";
 import { useMemo, useState } from "react";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { useNavigate } from "react-router";
 import ConfirmationModal from "@/components/ConfirmationModal";
 
@@ -82,7 +81,6 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFF] p-4 font-sans">
-      <DashboardHeader />
       <div className="max-w-xl mx-auto py-10 px-4 space-y-6">
         <div className="flex gap-4 items-center mb-6">
           <button

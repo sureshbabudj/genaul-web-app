@@ -9,17 +9,19 @@ interface SEOProps {
   ogImage?: string;
   twitterHandle?: string;
   noindex?: boolean;
+  children?: React.ReactNode;
 }
 
 export const SEO = ({
-  title = "Genaul | Capture. Learn. Master.",
-  description = "Genaul is a modern study space for effortless learning using the FSRS algorithm. Capture knowledge instantly, organize intelligently, and remember effortlessly.",
-  keywords = "Genaul, SRS, FSRS, spaced repetition, learning, study, flashcards, knowledge management, LaTeX, code snippets, memory palace, cognitive growth, study app",
-  canonical = "https://genaul.com", // Replace with actual domain if known
+  title = "Genaul | Your Private Workspace",
+  description = "Organize your mind with Genaul. A lightning fast local first markdown workspace and note taking app that gives you data sovereignty. Get started free. ✓",
+  keywords = "local first notes, markdown editor, knowledge base, obsidian alternative, private workspace, note taking app, local first software, personal knowledge management, second brain, privacy focused notes",
+  canonical = "https://genaul.com",
   ogType = "website",
   ogImage = "https://genaul.com/og-image.png", // Replace with actual OG image
-  twitterHandle = "@genaul",
+  twitterHandle = "@sureshbabudj",
   noindex = false,
+  children,
 }: SEOProps) => {
   const siteName = "Genaul";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
@@ -53,14 +55,13 @@ export const SEO = ({
       <script type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebApplication",
+          "@type": ["WebApplication", "SoftwareApplication"],
           name: "Genaul",
           url: "https://genaul.com",
           description: description,
-          applicationCategory: "EducationalApplication",
+          applicationCategory: "BusinessApplication",
           operatingSystem: "Web",
-          abstract:
-            "A modern SRS platform using FSRS algorithm for better retention.",
+          abstract: "A local first markdown editor and private knowledge base.",
           offers: {
             "@type": "Offer",
             price: "0",
@@ -68,6 +69,7 @@ export const SEO = ({
           },
         })}
       </script>
+      {children}
     </Helmet>
   );
 };

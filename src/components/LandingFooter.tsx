@@ -29,6 +29,15 @@ export function LandingFooter() {
       <p className="text-slate-300 mt-6 text-sm">
         &copy; {new Date().getFullYear()} Genaul. All rights reserved.
       </p>
+      <div className="mt-1 text-center">
+        <p className="text-[10px] text-slate-400">
+          Last updated:{" "}
+          {new Date().toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+      </div>
     </footer>
   );
 }

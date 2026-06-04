@@ -100,7 +100,56 @@ const FAQItem: React.FC<FAQProps> = ({ question, answer }) => {
 const LandingPage: React.FC = () => {
   return (
     <>
-      <SEO />
+      <SEO>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "Where is my data actually stored?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Genaul is a privacy-first application. Your 'Halls' and 'Echoes' are stored directly in your own personal cloud—either Google Drive's appDataFolder, Apple iCloud (CloudKit), or locally in your browser's IndexedDB. We never see your data.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Can I use it offline?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Yes. Genaul uses an Offline-First architecture. If you choose the IndexedDB provider, your data stays strictly in your browser. If using Cloud providers, the app will sync your changes as soon as you reconnect.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "What happens if I want to switch cloud providers?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "You can use the 'Export' feature in your Account settings to download your entire vault as an Excel/CSV file. You can then revoke permissions from your old provider and start fresh with a new one.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Is the 'Silent Refresh' for Google Drive secure?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Absolutely. We use Google's official Identity Services. By using silent refreshes, we ensure your session stays active without storing long-lived 'Refresh Tokens' in your browser, keeping your account highly secure.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "How do I permanently delete my data?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Genaul gives you full control. Under settings, the 'Revoke & Reset' option will not only sign you out but will physically send a command to Google or Apple to delete your vault.json file from their servers.",
+                },
+              },
+            ],
+          })}
+        </script>
+      </SEO>
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         {/* Abstract Background Gradients */}
@@ -111,22 +160,22 @@ const LandingPage: React.FC = () => {
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-indigo-50 shadow-sm mb-10">
             <Sparkles size={16} className="text-indigo-500" />
             <span className="text-sm font-bold text-indigo-950 tracking-wide">
-              The Future of Memory
+              Your Personal Knowledge Base
             </span>
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-8 leading-[0.9]">
-            The Hall of <br />
+            Your Private <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-indigo-500 to-blue-500">
-              Perfect Recall.
+              Workspace.
             </span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-xl md:text-2xl text-slate-500 font-medium leading-relaxed mb-12">
             Genaul is a{" "}
             <span className="text-indigo-600">sanctuary for your thoughts</span>
-            . We use predictive intelligence to ensure you never forget what
-            truly matters.
+            . A secure, local-first workspace designed to organize your mind and
+            protect your ideas.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -146,42 +195,42 @@ const LandingPage: React.FC = () => {
       <section className="py-24 px-6 max-w-7xl mx-auto" id="features">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <FeatureSection
-            icon={<BrainCircuit size={28} />}
-            label="Intelligence"
-            title="Predictive Retention"
-            description="Our FSRS algorithm maps your unique forgetting curve, showing you cards at the exact moment your brain is ready to let go."
+            icon={<Layers size={28} />}
+            label="Structure"
+            title="Fluid Organization"
+            description="Organize your thoughts seamlessly with nested folders and a powerful sidebar that feels right at home."
             gradient="from-indigo-600 to-indigo-400"
           />
 
           <FeatureSection
-            icon={<Layers size={28} />}
-            label="Structure"
-            title="Rich Media Canvas"
-            description="From complex mathematical proofs to language phonetics. Study with native support for LaTeX, code, and high-fidelity audio."
+            icon={<BrainCircuit size={28} />}
+            label="Creation"
+            title="Modern Rich Text"
+            description="Draft documents with native support for blockquotes, code blocks, lists, and embedded media in a beautiful editor."
             gradient="from-blue-600 to-indigo-500"
           />
 
           <FeatureSection
             icon={<Target size={28} />}
             label="Focus"
-            title="Deep Work Mode"
-            description="A distraction-free environment with integrated Pomodoro cycles to keep your sessions intense and effective."
+            title="Distraction-Free"
+            description="A clean, minimalist workspace that hides the clutter and lets you focus entirely on your writing and thinking."
             gradient="from-blue-500 to-blue-600"
           />
 
           <FeatureSection
             icon={<Zap size={28} />}
             label="Speed"
-            title="Instant Ingestion"
-            description="Capture knowledge in seconds. Your 'Aula' synchronizes instantly across every device you own."
+            title="Local-First Speed"
+            description="Built to run entirely in your browser. Navigating folders and typing notes is instantaneous with zero latency."
             gradient="from-blue-500 to-blue-400"
           />
 
           <FeatureSection
-            icon={<Timer size={28} />}
-            label="Consistency"
-            title="Visual Mastery"
-            description="Track your cognitive growth through beautiful heatmaps and habit-forming streaks that reward your progress."
+            icon={<ShieldCheck size={28} />}
+            label="Privacy"
+            title="Complete Sovereignty"
+            description="Your vault belongs to you. Keep your data locally in your browser or sync it via your own personal cloud."
             gradient="from-blue-900 to-blue-700"
           />
 
@@ -263,22 +312,22 @@ const LandingPage: React.FC = () => {
               </h2>
               <div className="space-y-6 text-lg text-slate-500 leading-relaxed">
                 <p>
-                  The modern student is drowning in a sea of fragmented data.
+                  Modern thinkers are drowning in a sea of fragmented data.
                   Information is easy to find, but hard to{" "}
                   <span className="text-slate-900 font-semibold italic text-indigo-600/80">
-                    keep
+                    organize
                   </span>
                   .
                 </p>
                 <p>
                   <span className="text-slate-900 font-bold">Genaul</span> was
-                  born from a simple question: What if we treated our memory
-                  with the same architectural rigor as a cathedral?
+                  born from a simple question: What if we treated our ideas with
+                  the same architectural rigor as a cathedral?
                 </p>
                 <p>
-                  By combining the ancient discipline of the "Memory Palace"
-                  with state-of-the-art predictive algorithms, we’ve built more
-                  than a flashcard app. We’ve built a{" "}
+                  By combining the freedom of a local-first file system with the
+                  power of a modern rich-text editor, we’ve built more than a
+                  note-taking app. We’ve built a{" "}
                   <span className="text-slate-900 font-semibold">
                     sanctuary for insight
                   </span>

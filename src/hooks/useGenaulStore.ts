@@ -19,6 +19,7 @@ type GenaulState = GenaulData & {
   setVaultSession: (session: VaultSession | null) => void;
 
   lastActiveHallId: string | null;
+  lastActiveEchoId: string | null;
   isHydrated: boolean;
 
   // Lifecycle & Sync
@@ -29,6 +30,7 @@ type GenaulState = GenaulData & {
   getLastActiveHallId: () => string | null;
   getDueEchoes: (hallId: string) => Echo[];
   setLastActiveHallId: (id: string | null) => Promise<void>;
+  setLastActiveEchoId: (id: string | null) => Promise<void>;
   createHall: (name: string) => Promise<string>;
   addEcho: (hallId: string, front: string, back: string) => Promise<void>;
   recallEcho: (echoId: string, grade: Grade) => Promise<void>;
@@ -54,6 +56,7 @@ export const useGenaulStore = create<GenaulState>()(
       stats: { lastUpdated: new Date().toISOString(), cardsReviewed: 0 },
       activeHallId: null,
       lastActiveHallId: null,
+      lastActiveEchoId: null,
       isHydrated: false,
 
       setAllData: (data) =>
@@ -80,6 +83,10 @@ export const useGenaulStore = create<GenaulState>()(
 
       setLastActiveHallId: async (id) => {
         set({ lastActiveHallId: id, activeHallId: id });
+      },
+
+      setLastActiveEchoId: async (id) => {
+        set({ lastActiveEchoId: id });
       },
 
       logout: () => set({ vaultSession: null, isHydrated: false }),
@@ -251,6 +258,7 @@ export const useGenaulStore = create<GenaulState>()(
       partialize: (state: GenaulState) => ({
         vaultProvider: state.vaultProvider,
         lastActiveHallId: state.lastActiveHallId,
+        lastActiveEchoId: state.lastActiveEchoId,
         vaultSession: state.vaultSession,
       }),
     },
