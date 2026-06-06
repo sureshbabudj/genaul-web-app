@@ -10,11 +10,12 @@ import {
   MoreVertical,
   UserCircle2Icon,
   LogOut,
+  X,
 } from "lucide-react";
 import ActionMenu from "./ActionMenu";
 import { Link } from "react-router";
 
-export function SidebarTree() {
+export function SidebarTree({ onClose }: { onClose?: () => void } = {}) {
   const {
     halls,
     echoes,
@@ -78,27 +79,43 @@ export function SidebarTree() {
   return (
     <aside className="w-full h-full flex flex-col bg-slate-50/50 border-r border-slate-200 overflow-hidden">
       <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="border-indigo-600 p-1 rounded-lg shadow-inner bg-indigo-600">
-            <img
-              src="./icon.svg"
-              alt="Genaul Logo"
-              width="16"
-              height="16"
-              className="text-white w-4 h-4 color-white invert"
-            />
-          </div>
-          <span className="text-lg font-black text-slate-900 tracking-tighter">
-            GENAUL.
+        <div className="flex items-center gap-2">
+          <Link to="/" className="hidden lg:flex items-center gap-2">
+            <div className="border-indigo-600 p-1 rounded-lg shadow-inner bg-indigo-600">
+              <img
+                src="./icon.svg"
+                alt="Genaul Logo"
+                width="16"
+                height="16"
+                className="text-white w-4 h-4 color-white invert"
+              />
+            </div>
+            <span className="text-lg font-black text-slate-900 tracking-tighter">
+              GENAUL.
+            </span>
+          </Link>
+          <span className="lg:hidden font-bold text-slate-800 text-lg">
+            Folders
           </span>
-        </Link>
-        <button
-          onClick={() => setShowCreateHall(true)}
-          className="text-slate-400 hover:text-indigo-600 transition p-1"
-          title="New Folder"
-        >
-          <Plus size={16} strokeWidth={3} />
-        </button>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setShowCreateHall(true)}
+            className="text-slate-500 hover:text-indigo-600 transition p-1.5 hover:bg-slate-100 rounded-lg"
+            title="New Folder"
+          >
+            <Plus size={18} strokeWidth={2.5} />
+          </button>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="lg:hidden text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg p-1.5 transition-colors"
+              title="Close Menu"
+            >
+              <X size={18} strokeWidth={2.5} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">

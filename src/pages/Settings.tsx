@@ -80,9 +80,9 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFF] p-4 font-sans">
-      <div className="max-w-xl mx-auto py-10 px-4 space-y-6">
-        <div className="flex gap-4 items-center mb-6">
+    <div className="min-h-screen bg-[#FAFAFF] p-2 sm:p-4 md:p-8 lg:p-12 xl:p-16 font-sans">
+      <div className="max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto py-6 sm:py-10 lg:py-12 space-y-6 lg:space-y-8">
+        <div className="flex gap-4 items-center mb-6 lg:mb-8">
           <button
             onClick={() => navigate(-1)}
             className="text-indigo-600 font-bold border border-slate-100 bg-slate-100 hover:bg-indigo-100 p-2 rounded-xl flex items-center gap-2"
@@ -120,7 +120,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+          <div className="mt-6 lg:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 border-t border-slate-100 pt-6 lg:pt-8">
             <div className="flex flex-col">
               <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                 Provider
